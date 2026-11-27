@@ -12,8 +12,9 @@ Preserve useful artifacts outside the checkout first.
 
 See [boot contract](docs/BOOT-CONTRACT.md), [extraction](docs/EXTRACTION.md),
 [approved plan](docs/REPOSITORY-SPLIT.md) and [provenance](docs/PROVENANCE.md).
-Native COPR publication and new hardware qualification are pending; no migrated
-artifact inherits hardware qualification automatically.
+Native Server/Media kernel-devel, boot, support and codec COPR builds passed.
+See docs/VALIDATION.md. Vendor firmware publication and new hardware
+qualification remain pending.
 
 Licensing: extracted code retains GPL/LGPL and imported notices. Selected new
 standalone files use [As-Is Noncommercial terms](licenses/As-Is-Noncommercial.txt).
