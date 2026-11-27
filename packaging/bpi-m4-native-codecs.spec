@@ -5,7 +5,7 @@ Name: bpi-m4-native-codecs
 Version: 9.0.2
 Source99: bpi-build-id
 %global bpi_recipe %(cat %{SOURCE99})
-Release: 4.%{bpi_recipe}.bpi_m4.fc45
+Release: 5.%{bpi_recipe}.bpi_m4.fc45
 Summary: Private ARM native video decoders for BPI-M4 playback
 License: LGPL-2.1-or-later AND GPL-2.0-or-later
 URL: https://ffmpeg.org/
