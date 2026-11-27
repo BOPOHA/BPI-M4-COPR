@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Select a persistent boot profile; power cycling is performed by the operator.
+set -euo pipefail
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
+if [[ $# != 1 || ( $1 != server && $1 != media && $1 != status ) ]]; then
+    echo 'Usage: bpi-m4-mode server|media|status' >&2
+    exit 2
+fi
+if [[ $1 == status ]]; then exec bpi-m4-bootctl status; fi
+exec bpi-m4-bootctl set-mode "$1"

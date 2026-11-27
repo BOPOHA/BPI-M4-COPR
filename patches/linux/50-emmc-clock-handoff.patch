@@ -1,0 +1,100 @@
+--- a/drivers/mmc/host/emmc-rtd129x.c
++++ b/drivers/mmc/host/emmc-rtd129x.c
+@@ -28,7 +28,7 @@
+  *
+  * BPI-M4 pilot: explicitly activated, read-only, at most one page per read,
+  * one-bit legacy timing <=20 MHz. RTD1395 VERID/HCON and the inherited
+- * 200 MHz firmware PLL are checked before controller writes. Firmware pad
++ * 80/100/200 MHz firmware PLL are checked before controller writes. Firmware pad
+  * voltage and phases are retained. No PLL programming, tuning or HS200.
+  * DMA failure freezes the host and retains the bounce buffer until reset.
+  */
+@@ -157,6 +157,7 @@
+ #define CRT_PLL_EMMC4		0x1fc	/* bit 0 output enable */
+ #define EM_PLL_100MHZ		0x57	/* the BSP's codes */
+ #define EM_PLL_200MHZ		0xa6
++#define EM_PLL_80MHZ		0x46
+ #define EM_NR_PHASES		32
+ #define EM_OTHER1		0x420
+ #define  OTHER1_L4_GATE		BIT(3)
+@@ -698,6 +699,52 @@
+ 	/* no card_busy: the core then polls with CMD13, as the BSP does */
+ };
+ 
++static int em_inherited_clock(struct em_host *h)
++{
++	u32 pll, control, output, ckgen;
++	int ret;
++
++	ret = regmap_read(h->crt, CRT_PLL_EMMC3, &pll);
++	if (ret)
++		return ret;
++	ret = regmap_read(h->crt, CRT_PLL_EMMC1, &control);
++	if (ret)
++		return ret;
++	ret = regmap_read(h->crt, CRT_PLL_EMMC4, &output);
++	if (ret)
++		return ret;
++	ckgen = em_read(h, EM_CKGEN_CTL);
++	/* These are the vendor BSP's rates with the wrapper divider bypassed.
++	 * Modern SPI leaves the FSBL's 80 MHz clock; vendor U-Boot used 200 MHz.
++	 * Keep the PLL, pad voltage and phases untouched, and derive CLKDIV from
++	 * the verified input rate rather than assuming an HS200 handoff.
++	 */
++	if ((pll & 0xffff) != 0x4388 || !(control & PLL_RSTB) ||
++	    !(output & BIT(0)) || ckgen != 0x2100)
++		goto unverified;
++	switch (pll >> 16) {
++	case EM_PLL_80MHZ:
++		h->bus_hz = 80000000;
++		break;
++	case EM_PLL_100MHZ:
++		h->bus_hz = 100000000;
++		break;
++	case EM_PLL_200MHZ:
++		h->bus_hz = 200000000;
++		break;
++	default:
++		goto unverified;
++	}
++	dev_info(h->dev, "inherited eMMC clock %lu MHz (PLL %08x)\n",
++		 h->bus_hz / 1000000, pll);
++	return 0;
++
++unverified:
++	return dev_err_probe(h->dev, -EINVAL,
++		"Unverified inherited eMMC clock: PLL %08x control %08x output %08x CKGEN %08x\n",
++		pll, control, output, ckgen);
++}
++
+ static int em_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -730,14 +777,11 @@
+ 
+  if (em_read(h, 0x6c) != 0x5342290a || em_read(h, 0x70) != 0x00c46d41)
+   return dev_err_probe(dev, -EINVAL, "Unverified eMMC controller identity\n");
+- /* Validate the inherited 200 MHz firmware PLL without reprogramming it. */
++ /* Validate the actual firmware PLL rate without reprogramming it. */
+  h->crt = syscon_regmap_lookup_by_phandle(dev->of_node, "realtek,crt");
+  if (IS_ERR(h->crt)) return PTR_ERR(h->crt);
+- ret = regmap_read(h->crt, CRT_PLL_EMMC3, &val);
++ ret = em_inherited_clock(h);
+  if (ret) return ret;
+- if (val != 0x00a64388 || readl(h->base + EM_CKGEN_CTL) != 0x2100)
+-  return dev_err_probe(dev, -EINVAL, "Unverified inherited eMMC clock\n");
+- h->bus_hz = 200000000;
+ 	/* CLK_EN1: EMMC (bus) and EMMC_IP (the core) */
+ 	clk = devm_clk_get_optional_enabled(dev, "biu");
+ 	if (IS_ERR(clk))
+@@ -752,10 +796,6 @@
+ 	h->sb2 = syscon_regmap_lookup_by_phandle(dev->of_node, "realtek,sb2");
+ 	if (IS_ERR(h->sb2))
+ 		return dev_err_probe(dev, PTR_ERR(h->sb2), "no realtek,sb2\n");
+-	h->crt = syscon_regmap_lookup_by_phandle(dev->of_node, "realtek,crt");
+-	if (IS_ERR(h->crt))
+-		return dev_err_probe(dev, PTR_ERR(h->crt), "no realtek,crt\n");
+-
+ 	h->desc = dma_alloc_coherent(dev, EM_NR_DESC * sizeof(*h->desc),
+ 				      &h->desc_dma, GFP_KERNEL);
+ 	if (!h->desc)

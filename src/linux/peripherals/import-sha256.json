@@ -1,0 +1,21 @@
+{
+  "drivers/Documentation/devicetree/bindings/interrupt-controller/realtek,rtd1295-irq-mux.yaml": "bcd2e6e62ae304526677ef99af8b44c73c83024d80de4c4a0645ddd71a1d86e9",
+  "drivers/drivers/clk/clk-rtd129x-crt.c": "8018560316a693ccc4b7c344f95c8080d6fc0c7cd73853f0872c1b4955f85a4e",
+  "drivers/drivers/irqchip/irq-rtd129x.c": "860e9db90c33582fd3fb095318d0071762119a07f5ba416a95afa0e5ce7e88a4",
+  "drivers/drivers/mmc/host/emmc-rtd129x.c": "bf5af8adc561385b9d605058417a9103b1fd61cfdbf49113646a6a35969c3c2c",
+  "drivers/sound/realtek-rtd129x-acpu/Kconfig": "4c3fa043d17e0a5367a0ab5722818ea4da273d463fd2531ae3595dbdc8095362",
+  "drivers/sound/realtek-rtd129x-acpu/Makefile": "1e0b678fd60e9ae6a2ac43d93a667a5f609812fd1f90750206a28692bc7f5074",
+  "drivers/sound/realtek-rtd129x-acpu/acpu-ao.c": "3b4d77fbeda58a3f58a40221ff702144f11d0aec4490269d03b4f66800be6c3d",
+  "drivers/sound/realtek-rtd129x-acpu/acpu-dp.c": "46bbfd9635a64120c46e5637c86f7eaaaacdd2c96f4380b90e506bd839b9acad",
+  "drivers/sound/realtek-rtd129x-acpu/acpu-pcm.c": "70110d4ecddba960fa114f6db13a3d2fc4731211c52f2e13d7e5ae26f10608c5",
+  "drivers/sound/realtek-rtd129x-acpu/acpu-rpc.c": "087cad3d4ff14a06bd94d9443d28f775c2dc57ab415fcfba8f1dc10255613353",
+  "drivers/sound/realtek-rtd129x-acpu/acpu-vo.c": "7fed7ac15ffd4831b0d1ce3e7f8df250810153af1f36dd2afbc21fbdbc3d7713",
+  "drivers/sound/realtek-rtd129x-acpu/acpu-vo.h": "40c90373648992f93d9a84a0551d563732cd69ff939461163bc3904e592db171",
+  "drivers/sound/realtek-rtd129x-acpu/rtd129x-acpu.h": "36d04b842e95145f00aebba0810af1fba2b14c95dc8af2cbcd91226fd94d92ce",
+  "gpio-shared-iso.patch": "e86b2bb7d593bebfbf0dc0bedea3d01004229b06a65639ce18a2e30f5dced0d7",
+  "mmc-readonly-core.patch": "b17622ca5a4b0b133a32293c30c2302cc5702a4f93b5a32e1636d97e978f4e08",
+  "provenance.json": "9193ffc8d192eb19544a445c7393a1134b35a23edb534d6fbad583e842c11128",
+  "reference/0038-usb-dwc3-rtk-apply-the-RTD1395-quirk-by-compatible.patch": "05e01a0f98ffe46fc19b6b6ab3347424be1fddaf25e879252e9ae3a604d9619d",
+  "reference/0039-phy-realtek-usb2-fix-the-PHY-register-of-the-second-.patch": "c376e6d048c856b17dba721cdeea0ba461446987f35c07d7445093c17dfd29f6",
+  "vendor-provenance.json": "03393bc5dfaf4894822a138a70bb58045aafcd4f99fdbf9b324733a220e6fbff"
+}

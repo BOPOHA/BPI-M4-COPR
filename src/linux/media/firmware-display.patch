@@ -1,0 +1,579 @@
+Subject: [PATCH] realtek: verified ACPU startup and cached opaque DRM scanout
+
+Final FC adaptations against the attributed imported ACPU driver: verify the
+fresh secure handoff, defer boot display, prepare bounded IRQ/RPC rings, and
+use the RTD1395 picture and TV-system layouts. Present cached GEM application
+buffers through owned opaque scanout with bounded firmware-context reuse.
+Original source copyright and license notices are retained.
+
+--- a/sound/realtek-rtd129x-acpu/Kconfig
++++ b/sound/realtek-rtd129x-acpu/Kconfig
+@@ -33,7 +33,7 @@
+ 	select DRM_CLIENT_SELECTION
+ 	select DRM_DISPLAY_DP_HELPER
+ 	select DRM_DISPLAY_HELPER
+-	select DRM_GEM_DMA_HELPER
++	select DRM_GEM_SHMEM_HELPER
+ 	select DRM_KMS_HELPER
+ 	help
+ 	  The RTD1295/RTD1296 video output, which the audio firmware runs,
+--- a/sound/realtek-rtd129x-acpu/acpu-rpc.c
++++ b/sound/realtek-rtd129x-acpu/acpu-rpc.c
+@@ -10,7 +10,8 @@
+  * gets an answer. This driver does what the BSP's rtk_rpc driver does for
+  * that. This guarded pilot requires already-open firmware rings and explicit
+  * activation. It validates bounded shared-ring messages and freezes on errors;
+- * it never starts firmware or reinitializes the rings.
++ * the media extension can load verified firmware and initialize fresh rings
++ * only on explicit activation, after registering its IRQ handler.
+  *
+  * The rings live in a 16 KiB area whose layout the firmware hardcodes.
+  * Each ring has a record of five words -- buffer, start, end, in, out --
+@@ -29,6 +30,11 @@
+  * Firmware may print to the shared UART. This pilot leaves its debug data
+  * unchanged and requires physical reset after uncertain RPC/DMA.
+  */
++#include <crypto/hash.h>
++#include <crypto/sha2.h>
++#include <linux/firmware.h>
++#include <linux/mfd/syscon.h>
++#include <linux/regmap.h>
+ #include <linux/auxiliary_bus.h>
+ #include <linux/delay.h>
+ #include <linux/genalloc.h>
+@@ -106,6 +112,10 @@
+ 
+ #define CALL_TIMEOUT		msecs_to_jiffies(1000)
+ 
++static bool start_rings;
++module_param(start_rings, bool, 0444);
++MODULE_PARM_DESC(start_rings, "Explicitly load verified media firmware and initialize fresh rings");
++
+ static bool activate;
+ module_param(activate, bool, 0444);
+ MODULE_PARM_DESC(activate, "Explicitly activate unvalidated audio/HDMI RPC; requires firmware already started");
+@@ -123,6 +133,7 @@
+ 	void __iomem *ring;
+ 	u32 ring_size;
+ 	bool failed;
++	bool fw_launch_attempted;
+ 	u32 ring_acpu;			/* ACPU address of the ring area */
+ 	bool kseg;			/* RTD129x: addresses in KSEG0/KSEG1 */
+ 
+@@ -710,6 +721,139 @@
+ {
+  struct rtd_acpu *acpu = data;
+  cancel_work_sync(&acpu->work);
++}
++
++/* Explicit Linux startup: validate before launching the independent ACPU.
++ * Adapted from RTD1395 BSP do_go_audio_fw()/set_one_step_info and Armbian
++ * ring_init/acpu_start. No automatic activation until hardware qualification.
++ */
++static int acpu_start_fresh(struct rtd_acpu *acpu)
++{
++ static const u8 expected[32] = {
++  0x77,0x48,0x32,0xda,0x0a,0x18,0xc1,0xba,0x83,0x7f,0xf4,0x19,0x26,0x50,0x2f,0xb8,
++  0x44,0x4e,0x83,0x39,0x75,0x62,0xc7,0x17,0x0c,0x71,0x43,0x54,0x16,0xaf,0xf4,0xdf
++ };
++ struct device_node *chosen;
++ const char *mode;
++ bool secure_armed;
++ unsigned int clock_state;
++ const struct firmware *fw;
++ struct crypto_shash *tfm;
++ struct shash_desc *desc;
++ struct regmap *crt;
++ void __iomem *startup = NULL;
++ u8 digest[32];
++ int i, ret;
++
++ chosen = of_find_node_by_path("/chosen");
++ if (!chosen) return -ENODEV;
++ ret = of_property_read_string(chosen, "bananapi,media-startup", &mode);
++ if (!ret && strcmp(mode, "explicit-linux-test") &&
++     strcmp(mode, "secure-armed-linux-test")) ret = -EINVAL;
++ of_node_put(chosen);
++ if (ret) return dev_err_probe(acpu->dev, ret, "Explicit Linux media startup marker absent\n");
++ secure_armed = !strcmp(mode, "secure-armed-linux-test");
++ if (acpu->kseg || (readl(acpu->sb2 + RPC_INT_EN) & RPC_INT_SA))
++  return dev_err_probe(acpu->dev, -EBUSY, "ACPU RPC already active; require physical cold boot\n");
++ crt = syscon_regmap_lookup_by_phandle(acpu->dev->of_node, "realtek,crt");
++ if (IS_ERR(crt)) return PTR_ERR(crt);
++ ret = regmap_read(crt, 0x10, &clock_state);
++ if (ret) return ret;
++ if (clock_state & BIT(4))
++  return dev_err_probe(acpu->dev, -EBUSY, "ACPU clock already enabled; require physical cold boot\n");
++ if (!secure_armed) {
++  startup = devm_ioremap(acpu->dev, 0x98081340, sizeof(u32));
++  if (!startup) return -ENOMEM;
++  if (readl(startup) == 0xdeaddead)
++   return dev_err_probe(acpu->dev, -EACCES, "Secure startup flag inaccessible; use checked EL3 armed handoff\n");
++ }
++ ret = request_firmware(&fw, "realtek/rtd1395/bluecore.audio", acpu->dev);
++ if (ret) return ret;
++ if (fw->size != 4319769 || fw->size > acpu->fw_size) { ret = -EINVAL; goto release; }
++ tfm = crypto_alloc_shash("sha256", 0, 0);
++ if (IS_ERR(tfm)) { ret = PTR_ERR(tfm); goto release; }
++ desc = kzalloc(sizeof(*desc) + crypto_shash_descsize(tfm), GFP_KERNEL);
++ if (!desc) { crypto_free_shash(tfm); ret = -ENOMEM; goto release; }
++ desc->tfm = tfm;
++ ret = crypto_shash_digest(desc, fw->data, fw->size, digest);
++ kfree(desc); crypto_free_shash(tfm);
++ if (ret || memcmp(digest, expected, sizeof(expected))) { ret = -EBADMSG; goto release; }
++ /* IRQ and allocation pools exist, but firmware is not released yet. */
++ memset_io(acpu->fw, 0, acpu->fw_size);
++ memcpy_toio(acpu->fw, fw->data, fw->size);
++ memset_io(acpu->comm, 0, 0x1000);
++ memset_io(acpu->ring, 0, acpu->ring_size);
++ writel(cpu_to_be32(0x16803001), acpu->comm);
++ writel(cpu_to_be32(0x2f000), acpu->comm + 4);
++ writel(cpu_to_be32(0xd8007800), acpu->comm + 0xc4);
++ writel(cpu_to_be32(0x2f800), acpu->comm + 0xc8);
++ writel(cpu_to_be32(0x2f600), acpu->comm + 0xcc);
++ writel(cpu_to_be32(0x8f900000), acpu->comm + 0xe0);
++ writel(cpu_to_be32(0x2f900), acpu->comm + 0xe4);
++ /* MIPS one-step TV record, fixed RGB 8-bit 1080p60. */
++ /* Leave the vendor one-step record invalid: the tested firmware default
++  * avoids its early one-step mixer/HDMI exception. Other fields stay unchanged.
++  */
++ writel(0, acpu->comm + 0x800);
++ writel(cpu_to_be32(2), acpu->comm + 0x804);
++ writel(cpu_to_be32(25), acpu->comm + 0x808);
++ writeb(1, acpu->comm + 0x80c); writeb(1, acpu->comm + 0x80d);
++ writel(cpu_to_be32(1), acpu->comm + 0x810);
++ writel(cpu_to_be32(4), acpu->comm + 0x814);
++ writel(cpu_to_be32(1), acpu->comm + 0x81c);
++ writel(cpu_to_be32(3), acpu->comm + 0x820);
++ writeb(1, acpu->comm + 0x824); writeb(0x28, acpu->comm + 0x826);
++ writeb(16, acpu->comm + 0x828);
++ writel(cpu_to_be32(2), acpu->comm + 0x838);
++ for (i = 0; i < NR_RINGS; i++) {
++  u32 recs[] = { POLL_REC(i), INTR_REC(i), KERN_REC(i) };
++  u32 bufs[] = { POLL_RING(i), INTR_RING(i), KERN_RING(i) };
++  int j;
++  for (j = 0; j < ARRAY_SIZE(recs); j++) {
++   u32 buf = acpu->ring_acpu + bufs[j];
++   writel(buf, acpu->ring + recs[j] + REC_BUF);
++   writel(buf, acpu->ring + recs[j] + REC_START);
++   writel(buf + RING_SIZE, acpu->ring + recs[j] + REC_END);
++   writel(buf, acpu->ring + recs[j] + REC_IN);
++   writel(buf, acpu->ring + recs[j] + REC_OUT);
++  }
++ }
++ wmb();
++ dev_info(acpu->dev, "verified firmware loaded; IRQ/rings prepared; one-step boot display deferred\n");
++ if (!secure_armed) {
++  writel(0xacd1, startup); /* RTD1395 BSP startup flag, not RTD161x. */
++  wmb();
++  if (readl(startup) != 0xacd1) { ret = -EACCES; goto release; }
++ }
++ ret = regmap_read(crt, 0x10, &clock_state);
++ if (ret || (clock_state & BIT(4))) { ret = ret ?: -EBUSY; goto release; }
++ dev_info(acpu->dev, "releasing ACPU clock after verified secure handoff and Linux preparation\n");
++ /* Independent firmware cannot be unloaded or reclaimed until cold boot. */
++ __module_get(THIS_MODULE);
++ acpu->fw_launch_attempted = true;
++ ret = regmap_update_bits(crt, 0x10, BIT(4), BIT(4));
++ if (ret) goto release;
++ /* Allow early audio firmware initialization before releasing its RPC wait.
++  * This is a bounded diagnostic delay, not proof of firmware readiness.
++  */
++ msleep(1000);
++ writel(SYNC_RPC_NOTIFY, acpu->comm + IPC_VO_INT_SYNC);
++ acpu_kick(acpu);
++ wmb();
++ writel(0xffffffff, acpu->comm + IPC_AUDIO_RPC_FLAG);
++ for (i = 0; i < 200; i++) {
++  if (READ_ONCE(acpu->failed)) { ret = -EIO; goto release; }
++  if (readl(acpu->sb2 + RPC_INT_EN) & RPC_INT_SA) {
++   dev_info(acpu->dev, "media firmware RPC interrupt enabled; verifying VO calls next\n");
++   ret = 0; goto release;
++  }
++  msleep(10);
++ }
++ WRITE_ONCE(acpu->failed, true);
++ ret = dev_err_probe(acpu->dev, -ETIMEDOUT, "Firmware RPC readiness timeout; require physical reset\n");
++release:
++ release_firmware(fw);
++ return ret;
+ }
+ 
+ static int acpu_probe(struct platform_device *pdev)
+@@ -787,7 +931,9 @@
+ 	 * rings. If it already has, it is running from an earlier start, and
+ 	 * new rings would lose track of whatever it has in flight.
+ 	 */
+-	if (readl(acpu->sb2 + RPC_INT_EN) & RPC_INT_SA) {
++	if (start_rings) {
++		/* Validate/load/start only after IRQ registration. */
++	} else if (readl(acpu->sb2 + RPC_INT_EN) & RPC_INT_SA) {
+ 		dev_warn(dev, "audio firmware already running\n");
+ 		acpu_quiet(acpu);
+ 	} else if (be32_to_cpu(readl(acpu->comm)) != 0x16803001) {
+@@ -806,6 +952,17 @@
+ 	if (ret)
+ 		return ret;
+ 
++
++	if (start_rings) {
++		ret = acpu_start_fresh(acpu);
++		if (ret) {
++			if (!acpu->fw_launch_attempted) return ret;
++			WRITE_ONCE(acpu->failed, true);
++			platform_set_drvdata(pdev, acpu);
++			dev_err(dev, "Firmware startup failed: resources retained, no VO; physical cold boot required\n");
++			return 0;
++		}
++	}
+ 
+ 	platform_set_drvdata(pdev, acpu);
+ 	ret = acpu_add_adev(acpu, RTD_ACPU_PCM_NAME, &acpu->pcm);
+--- a/sound/realtek-rtd129x-acpu/acpu-vo.c
++++ b/sound/realtek-rtd129x-acpu/acpu-vo.c
+@@ -30,18 +30,21 @@
+ #include <linux/auxiliary_bus.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/io.h>
++#include <linux/iopoll.h>
++#include <linux/unaligned.h>
+ #include <linux/module.h>
+ #include <linux/of_reserved_mem.h>
+ 
+ #include <drm/clients/drm_client_setup.h>
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_drv.h>
+-#include <drm/drm_fb_dma_helper.h>
+-#include <drm/drm_fbdev_dma.h>
++#include <drm/drm_fbdev_shmem.h>
+ #include <drm/drm_fourcc.h>
++#include <drm/drm_format_helper.h>
++#include <drm/drm_rect.h>
+ #include <drm/drm_framebuffer.h>
+ #include <drm/drm_gem_atomic_helper.h>
+-#include <drm/drm_gem_dma_helper.h>
++#include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_probe_helper.h>
+ #include <drm/drm_simple_kms_helper.h>
+@@ -76,6 +79,9 @@
+ #define VO_RING_HDR		VO_RING_SIZE
+ #define VO_REFCLOCK		(VO_RING_SIZE + SZ_1K)
+ #define VO_SHARED_SIZE		(VO_RING_SIZE + SZ_2K)
++#define VO_SCANOUT_PITCH	(1920 * 4)
++#define VO_SCANOUT_HEIGHT	1080
++#define VO_SCANOUT_SIZE		PAGE_ALIGN(VO_SCANOUT_PITCH * VO_SCANOUT_HEIGHT)
+ 
+ /* RINGBUFFER_HEADER, all big-endian */
+ struct vo_ring_hdr {
+@@ -171,15 +177,17 @@
+ static int vo_call_raw(struct rtd_vo *vo, u32 procedure, const void *args,
+ 		       u32 len)
+ {
+-	u32 res;
+-
+-	return vo_check(vo, procedure,
+-			vo_rpc_raw(vo, procedure, args, len, &res, 1), res);
++	u32 res = 0;
++	int got;
++
++	/* C does not order arguments: receive the result before inspecting it. */
++	got = vo_rpc_raw(vo, procedure, args, len, &res, 1);
++	return vo_check(vo, procedure, got, res);
+ }
+ 
+ static int vo_call(struct rtd_vo *vo, u32 procedure, const u32 *args, u32 n)
+ {
+-	u32 res;
++	u32 res = 0;
+ 	int got = vo_rpc(vo, procedure, args, n, &res, 1);
+ 
+ 	return vo_check(vo, procedure, got, res);
+@@ -273,6 +281,14 @@
+ 	u32 read = be32_to_cpu(readl(&hdr->read[0]));
+ 	u32 i, off;
+ 
++	/* Firmware owns the read pointer, never trust it for host indexing. */
++	if (begin != vo->shared.phys || size != VO_RING_SIZE ||
++	    write < begin || write >= begin + VO_RING_SIZE ||
++	    read < begin || read >= begin + VO_RING_SIZE ||
++	    ((write | read | len) & 3) || !len || len >= VO_RING_SIZE) {
++		dev_err_ratelimited(vo->dev, "invalid VO ring; frame submission refused\n");
++		return;
++	}
+ 	if ((read + (read > write ? 0 : size) - write) <= len) {
+ 		dev_warn(vo->dev, "ring full\n");
+ 		return;
+@@ -295,13 +311,13 @@
+ static void vo_show(struct rtd_vo *vo, u32 addr, u32 width, u32 height,
+ 		    u32 pitch)
+ {
+-	u32 obj[21] = {
++	u32 obj[20] = {
+ 		INBAND_CMD_TYPE_PICTURE_OBJECT, sizeof(obj),
+ 		GRAPHIC_FORMAT_ARGB8888_LITTLE,
+ 		0, 0,			/* PTS */
+ 		vo->context++,
+ 		0xffffffff,		/* no colour key */
+-		0xff,			/* constant alpha */
++		0,			/* use the owned buffer's opaque pixel alpha */
+ 		0, 0, width, height,
+ 		addr, pitch,
+ 		0, 0,			/* right eye */
+@@ -309,6 +325,8 @@
+ 		0, 0, 0,		/* no AFBC */
+ 	};
+ 
++	/* Pinned RTD1395 dc2vo.h: 20 big-endian words, no trailing pad. */
++	static_assert(sizeof(obj) == 80);
+ 	vo_write_cmd(vo, obj, sizeof(obj));
+ }
+ 
+@@ -316,7 +334,7 @@
+ {
+ 	struct vo_ring_hdr __iomem *hdr = vo->shared.vaddr + VO_RING_HDR;
+ 	struct vo_refclock *clk = vo->shared.vaddr + VO_REFCLOCK;
+-	u32 ring = vo->shared.phys, res[2];
++	u32 ring = vo->shared.phys, res[2] = {};
+ 	int ret;
+ 
+ 	ret = vo_rpc(vo, VIDEO_RPC_ToAgent_Create,
+@@ -364,6 +382,7 @@
+ 	writel(cpu_to_be32(ring), &hdr->write);
+ 	writel(cpu_to_be32(ring), &hdr->read[0]);
+ 	writel(cpu_to_be32(1), &hdr->buffer_id);
++	writel(cpu_to_be32(1), &hdr->num_read);
+ 	ret = vo_call(vo, VIDEO_RPC_ToAgent_InitRingBuffer,
+ 		      (u32[]){ vo->instance, 0, 0, ring + VO_RING_HDR }, 4);
+ 	if (ret)
+@@ -378,14 +397,76 @@
+ 	return container_of(pipe, struct rtd_vo, pipe);
+ }
+ 
++/* Application GEM shmem is cached; firmware sees only owned WC scanout. */
++static void vo_opaque_line(u32 *line, unsigned int pixels)
++{
++	unsigned int x;
++
++	for (x = 0; x < pixels; x++)
++		line[x] |= 0xff000000;
++}
++
++static int vo_copy_opaque(void __iomem *dst,
++			  struct drm_shadow_plane_state *shadow,
++			  const struct drm_framebuffer *fb)
++{
++	const u8 *src;
++	u32 *line;
++	unsigned int y;
++
++	static_assert(VO_SCANOUT_PITCH % 64 == 0);
++	if (shadow->data[0].is_iomem)
++		return -EINVAL;
++	line = drm_format_conv_state_reserve(&shadow->fmtcnv_state,
++					     VO_SCANOUT_PITCH, GFP_KERNEL);
++	if (!line)
++		return -ENOMEM;
++	src = shadow->data[0].vaddr;
++	for (y = 0; y < VO_SCANOUT_HEIGHT; y++) {
++		memcpy(line, src, VO_SCANOUT_PITCH);
++		vo_opaque_line(line, VO_SCANOUT_PITCH / sizeof(*line));
++		/* ARM64 groups stores so write-combining can form full bursts. */
++		__iowrite64_copy(dst, line, VO_SCANOUT_PITCH / sizeof(u64));
++		src += fb->pitches[0];
++		dst += VO_SCANOUT_PITCH;
++	}
++	return 0;
++}
++
++/* Keep user XRGB data intact: the RTD1395 firmware reads pixel alpha. */
+ static void vo_post(struct rtd_vo *vo, struct drm_plane_state *state)
+ {
+ 	struct drm_framebuffer *fb = state->fb;
++	struct drm_shadow_plane_state *shadow = to_drm_shadow_plane_state(state);
++	struct vo_refclock __iomem *clk = vo->shared.vaddr + VO_REFCLOCK;
++	unsigned int slot = vo->scanout_next;
++	u32 displayed;
++	int ret;
+ 
+ 	if (!fb)
+ 		return;
+-	vo_show(vo, drm_fb_dma_get_gem_addr(fb, state, 0), fb->width,
+-		fb->height, fb->pitches[0]);
++	if (vo->scanout_used[slot]) {
++		/* Consumption alone does not mean an old buffer is off screen. */
++		ret = read_poll_timeout(readl, displayed,
++			be32_to_cpu(displayed) != U32_MAX &&
++			(s32)(be32_to_cpu(displayed) - vo->scanout_context[slot]) > 0,
++			1000, 100000, false, &clk->video_context);
++		if (ret) {
++			dev_warn_ratelimited(vo->dev,
++				"display context stalled; scanout reuse refused\n");
++			return;
++		}
++	}
++	ret = vo_copy_opaque(vo->scanout[slot].vaddr, shadow, fb);
++	if (ret) {
++		dev_warn_ratelimited(vo->dev, "opaque scanout copy failed; frame refused\n");
++		return;
++	}
++	wmb();
++	vo->scanout_context[slot] = vo->context;
++	vo_show(vo, vo->scanout[slot].phys, 1920, 1080, VO_SCANOUT_PITCH);
++	vo->scanout_used[slot] = true;
++	vo->scanout_next ^= 1;
+ }
+ 
+ static void vo_pipe_enable(struct drm_simple_display_pipe *pipe,
+@@ -412,6 +493,7 @@
+ }
+ 
+ static const struct drm_simple_display_pipe_funcs vo_pipe_funcs = {
++	DRM_GEM_SIMPLE_DISPLAY_PIPE_SHADOW_PLANE_FUNCS,
+ 	.mode_valid = vo_pipe_mode_valid,
+ 	.enable = vo_pipe_enable,
+ 	.update = vo_pipe_update,
+@@ -452,13 +534,13 @@
+ 	DRM_FORMAT_XRGB8888,
+ };
+ 
+-DEFINE_DRM_GEM_DMA_FOPS(vo_fops);
++DEFINE_DRM_GEM_FOPS(vo_fops);
+ 
+ static const struct drm_driver vo_drm_driver = {
+ 	.driver_features = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
+ 	.fops = &vo_fops,
+-	DRM_GEM_DMA_DRIVER_OPS,
+-	DRM_FBDEV_DMA_DRIVER_OPS,
++	DRM_GEM_SHMEM_DRIVER_OPS,
++	DRM_FBDEV_SHMEM_DRIVER_OPS,
+ 	.name = "rtd129x-vo",
+ 	.desc = "Realtek RTD129x video output",
+ 	.major = 1,
+@@ -494,6 +576,77 @@
+ 	return 0;
+ }
+ 
++/* Read-only presentation state: accepted DRM state alone is insufficient. */
++static ssize_t presentation_status_show(struct device *dev,
++                                       struct device_attribute *attr, char *buf)
++{
++    struct rtd_vo *vo = dev_get_drvdata(dev);
++    struct vo_ring_hdr __iomem *hdr = vo->shared.vaddr + VO_RING_HDR;
++
++    return sysfs_emit(buf,
++        "instance=%08x context=%u ring=%08x size=%u readers=%u read=%08x write=%08x displayed=%u scanout0=%08x scanout1=%08x\n",
++        vo->instance, READ_ONCE(vo->context),
++        be32_to_cpu(readl(&hdr->begin)), be32_to_cpu(readl(&hdr->size)),
++        be32_to_cpu(readl(&hdr->num_read)), be32_to_cpu(readl(&hdr->read[0])),
++        be32_to_cpu(readl(&hdr->write)),
++        be32_to_cpu(readl(vo->shared.vaddr + VO_REFCLOCK +
++                         offsetof(struct vo_refclock, video_context))),
++        (u32)vo->scanout[0].phys, (u32)vo->scanout[1].phys);
++}
++static DEVICE_ATTR_RO(presentation_status);
++static struct attribute *vo_status_attrs[] = {
++    &dev_attr_presentation_status.attr, NULL,
++};
++static const struct attribute_group vo_status_group = {
++    .attrs = vo_status_attrs,
++};
++
++/* Fully initialized pinned RTD1395 BSP TV ABI, after RPC readiness. */
++static int vo_bpi_m4_tv_profile(struct rtd_vo *vo)
++{
++	u8 tv[VO_TV_SYSTEM_SIZE] = {};
++
++	if (!of_machine_is_compatible("bananapi,bpi-m4"))
++		return 0;
++	put_unaligned_be32(2, tv);       /* HDMI only. */
++	put_unaligned_be32(25, tv + 4);  /* 1080p60. */
++	tv[8] = 1; tv[9] = 1;
++	put_unaligned_be32(1, tv + 12);
++	put_unaligned_be32(4, tv + 16);
++	put_unaligned_be32(1, tv + 24);  /* HDMI on. */
++	put_unaligned_be32(3, tv + 28);  /* Vendor 48 kHz metadata. */
++	tv[32] = 1;
++	tv[34] = 0xa8;                  /* RGB, BT.709, 16:9. */
++	tv[36] = 16;                    /* VIC16. */
++	put_unaligned_be32(2, tv + 52);  /* SDR, no scrambling/deep colour. */
++	return vo_config_tv_system(vo, tv);
++}
++
++/* These buffers are never returned while firmware might still read them. */
++static int vo_scanout_alloc(struct rtd_vo *vo)
++{
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(vo->scanout); i++) {
++		vo->scanout[i].size = VO_SCANOUT_SIZE;
++		vo->scanout[i].phys = rtd_acpu_media_alloc(vo->acpu, VO_SCANOUT_SIZE);
++		if (!vo->scanout[i].phys)
++			goto fail;
++		vo->scanout[i].vaddr = ioremap_wc(vo->scanout[i].phys, VO_SCANOUT_SIZE);
++		if (!vo->scanout[i].vaddr)
++			goto fail;
++	}
++	return 0;
++fail:
++	for (i = 0; i < ARRAY_SIZE(vo->scanout); i++) {
++		if (vo->scanout[i].vaddr)
++			iounmap(vo->scanout[i].vaddr);
++		rtd_acpu_media_free(vo->acpu, vo->scanout[i].phys, VO_SCANOUT_SIZE);
++		memset(&vo->scanout[i], 0, sizeof(vo->scanout[i]));
++	}
++	return -ENOMEM;
++}
++
+ static int vo_probe(struct auxiliary_device *adev,
+ 		    const struct auxiliary_device_id *id)
+ {
+@@ -521,7 +674,15 @@
+ 	      rtd_acpu_alloc(vo->acpu, 2 * VO_TV_SYSTEM_SIZE, &vo->param);
+ 	if (ret)
+ 		goto err_rmem;
+-	ret = vo_start(vo);
++	ret = vo_scanout_alloc(vo);
++	if (ret) {
++		rtd_acpu_free(vo->acpu, &vo->param);
++		rtd_acpu_free(vo->acpu, &vo->shared);
++		goto err_rmem;
++	}
++	/* Firmware and its retained scanout/rings outlive any DRM client. */
++	__module_get(THIS_MODULE);
++	ret = vo_bpi_m4_tv_profile(vo) ?: vo_start(vo);
+ 	if (ret)
+ 		goto err_shared;
+ 
+@@ -532,6 +693,9 @@
+ 	if (ret)
+ 		goto err_shared;
+ 	auxiliary_set_drvdata(adev, vo);
++	ret = devm_device_add_group(dev, &vo_status_group);
++	if (ret)
++		dev_warn(dev, "presentation status unavailable: %d\n", ret);
+ 	drm_client_setup(&vo->drm, NULL);
+ 
+ 	/* the DisplayPort output shows the same picture, if there is one */
+--- a/sound/realtek-rtd129x-acpu/acpu-vo.h
++++ b/sound/realtek-rtd129x-acpu/acpu-vo.h
+@@ -25,6 +25,10 @@
+ 	struct rtd_acpu_buf param;	/* kernel RPC arguments and results */
+ 	u32 instance;
+ 	u32 context;
++	struct rtd_acpu_buf scanout[2]; /* owned opaque ARGB, existing media heap */
++	u32 scanout_context[2];
++	bool scanout_used[2];
++	unsigned int scanout_next;
+ 
+ 	struct vo_dp *dp;
+ };
+@@ -34,7 +38,7 @@
+ #define VO_KRPC_QUERY_TV_SYSTEM		35
+ 
+ /* VIDEO_RPC_VOUT_CONFIG_TV_SYSTEM, big-endian, as the MIPS side lays it out */
+-#define VO_TV_SYSTEM_SIZE		56
++#define VO_TV_SYSTEM_SIZE		60
+ #define VO_TV_INTERFACE_TYPE		0	/* enum VO_INTERFACE_TYPE */
+ #define VO_TV_STANDARD			4	/* videoInfo.standard */
+ #define VO_TV_PED_TYPE			12	/* videoInfo.pedType: the DP standard */

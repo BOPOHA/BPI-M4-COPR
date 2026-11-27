@@ -1,0 +1,30 @@
+--- a/drivers/gpio/gpio-rtd.c
++++ b/drivers/gpio/gpio-rtd.c
+@@ -553,9 +553,24 @@
+ 	if (IS_ERR(data->base))
+ 		return PTR_ERR(data->base);
+ 
+-	data->irq_base = devm_platform_ioremap_resource(pdev, 1);
+-	if (IS_ERR(data->irq_base))
+-		return PTR_ERR(data->irq_base);
++	/* BPI-M4 ISO GPIO status shares a syscon window with clocks/resets.
++	 * Do not reserve the whole window exclusively. Only the GPIO status
++	 * offsets in the RTD1395 table are accessed through this mapping.
++	 */
++	if (device_property_read_bool(dev, "bananapi,shared-iso-irq-window")) {
++		struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
++
++		if (data->info != &rtd1395_iso_gpio_info || !res ||
++		    res->start != 0x98007000 || resource_size(res) != 0xe8)
++			return -EINVAL;
++		data->irq_base = devm_ioremap(dev, res->start, resource_size(res));
++		if (!data->irq_base)
++			return -ENOMEM;
++	} else {
++		data->irq_base = devm_platform_ioremap_resource(pdev, 1);
++		if (IS_ERR(data->irq_base))
++			return PTR_ERR(data->irq_base);
++	}
+ 
+ 	data->gpio_chip.label = dev_name(dev);
+ 	data->gpio_chip.base = -1;

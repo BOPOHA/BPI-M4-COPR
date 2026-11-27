@@ -1,0 +1,52 @@
+--- a/drivers/watchdog/rtd119x_wdt.c
++++ b/drivers/watchdog/rtd119x_wdt.c
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/bitops.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/io.h>
+ #include <linux/of.h>
+ #include <linux/of_address.h>
+@@ -76,12 +77,33 @@
+ 	return 0;
+ }
+ 
++/* Reuse the documented watchdog registers for a platform restart.
++ * No watchdog daemon or periodic reset is enabled by this handler.
++ */
++static int rtd119x_wdt_restart(struct watchdog_device *wdev,
++                             unsigned long action, void *command)
++{
++	struct rtd119x_watchdog_device *data = watchdog_get_drvdata(wdev);
++
++	(void)action;
++	(void)command;
++	rtd119x_wdt_stop(wdev);
++	writel(1, data->base + RTD119X_TCWOV);
++	writel(RTD119X_TCWTR_WDCLR, data->base + RTD119X_TCWTR);
++	rtd119x_wdt_start(wdev);
++	/* Flush the enable write before waiting for hardware reset. */
++	readl(data->base + RTD119X_TCWCR);
++	mdelay(1000);
++	return -EIO;
++}
++
+ static const struct watchdog_ops rtd119x_wdt_ops = {
+ 	.owner = THIS_MODULE,
+ 	.start		= rtd119x_wdt_start,
+ 	.stop		= rtd119x_wdt_stop,
+ 	.ping		= rtd119x_wdt_ping,
+ 	.set_timeout	= rtd119x_wdt_set_timeout,
++	.restart	= rtd119x_wdt_restart,
+ };
+ 
+ static const struct watchdog_info rtd119x_wdt_info = {
+@@ -123,6 +145,7 @@
+ 	data->wdt_dev.min_timeout = 1;
+ 	data->wdt_dev.parent = dev;
+ 
++	watchdog_set_restart_priority(&data->wdt_dev, 128);
+ 	watchdog_stop_on_reboot(&data->wdt_dev);
+ 	watchdog_set_drvdata(&data->wdt_dev, data);
+ 	platform_set_drvdata(pdev, data);

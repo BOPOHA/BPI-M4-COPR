@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-2-Clause)
+/* Server never starts ACPU firmware. The loader checks inactive ACPU/RPC
+ * before Linux reuses these 216 MiB; boot/RPC/framebuffer areas stay reserved.
+ */
+/ { chosen { bananapi,boot-profile = "server"; }; };
+&fc_audio_heap { status = "disabled"; };
+&fc_media_heap { status = "disabled"; };
+&fc_audio_fw { status = "disabled"; };
+&acpu { status = "disabled"; };

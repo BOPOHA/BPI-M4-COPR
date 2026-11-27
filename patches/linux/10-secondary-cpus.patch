@@ -1,0 +1,84 @@
+From: BPI-M4 bring-up
+Subject: [PATCH] arm64: experimental RTD1395 MMIO spin-table entry
+
+Adapt the MMIO spin-table idea from Armbian patch 0005 at build revision
+4d731b2b6790be8cae4f6ce368d54ee2cfea2470 (JalenLin/BPI-W2-linux),
+using the pinned BPI-M4 BSP EL3 entry sequence. Limit the MMIO path to
+RTD1395 and its exact release register. Hardware validation is pending.
+
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -368,6 +368,31 @@
+ 	 * This provides a "holding pen" for platforms to hold all secondary
+ 	 * cores are held until we're ready for them to initialise.
+ 	 */
++/* RTD1395 FSBL may enter at EL3; keep this out of the normal ARM64 entry. */
++SYM_FUNC_START(bpi_m4_secondary_entry)
++	mrs	x0, CurrentEL
++	cmp	x0, #0xc
++	b.ne	secondary_holding_pen
++	mov	x0, #0x5b1
++	msr	scr_el3, x0
++	msr	cptr_el3, xzr
++	mov	x0, #0x33ff
++	msr	cptr_el2, x0
++	msr	cntvoff_el2, xzr
++	mov	x0, #0x0830
++	movk	x0, #0x30c5, lsl #16
++	msr	sctlr_el2, x0
++	mov	x0, sp
++	msr	sp_el2, x0
++	mrs	x0, vbar_el3
++	msr	vbar_el2, x0
++	mov	x0, #0x3c9
++	msr	spsr_el3, x0
++	adr	x0, secondary_holding_pen
++	msr	elr_el3, x0
++	eret
++SYM_FUNC_END(bpi_m4_secondary_entry)
++
+ SYM_FUNC_START(secondary_holding_pen)
+ 	mov	x0, xzr
+ 	bl	init_kernel_el			// w0=cpu_boot_mode
+--- a/arch/arm64/kernel/smp_spin_table.c
++++ b/arch/arm64/kernel/smp_spin_table.c
+@@ -19,6 +19,7 @@
+ #include <asm/smp_plat.h>
+ 
+ extern void secondary_holding_pen(void);
++extern void bpi_m4_secondary_entry(void);
+ volatile unsigned long __section(".mmuoff.data.read")
+ secondary_holding_pen_release = INVALID_HWID;
+ 
+@@ -70,6 +71,31 @@
+ 
+ 	if (!cpu_release_addr[cpu])
+ 		return -ENODEV;
++
++	/*
++	 * RTD1395 firmware polls a shared 32-bit ISO register. Use the
++	 * Armbian spin-table protocol, but limit the MMIO exception to this
++	 * board/address and retain the vendor EL3 -> EL2 entry shim.
++	 */
++	if (of_machine_is_compatible("realtek,rtd1395") &&
++	    cpu_release_addr[cpu] == 0x98007f30) {
++		void __iomem *reg;
++		phys_addr_t entry = __pa_symbol(bpi_m4_secondary_entry);
++
++		if (entry > U32_MAX)
++			return -EINVAL;
++		reg = ioremap(cpu_release_addr[cpu], sizeof(u32));
++		if (!reg)
++			return -ENOMEM;
++		writel((u32)entry, reg);
++		/* Complete the posted release write before sending the event. */
++		wmb();
++		readl(reg);
++		dsb(sy);
++		sev();
++		iounmap(reg);
++		return 0;
++	}
+ 
+ 	/*
+ 	 * The cpu-release-addr may or may not be inside the linear mapping.

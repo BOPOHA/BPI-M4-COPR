@@ -1,0 +1,43 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Generic SPI boot: the loader supplies root PARTUUID and detected SD limits.
+set -eu
+export PATH=/usr/bin:/usr/sbin:/bin:/sbin
+fail() {
+    echo 'BPI_M4_SD_ROOT_FAILED: SD identity or writable-root validation failed'
+    exec /bin/bash
+}
+trap fail EXIT
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev
+mount -t tmpfs -o mode=0755,size=64M tmpfs /run
+source /etc/bpi-sd-root.bash
+partuuid=$(parse_root_partuuid </proc/cmdline)
+devices=()
+for attempt in {1..30}; do
+    found=$(blkid -t "PARTUUID=$partuuid" -o device) || found=
+    if [[ -n $found ]]; then
+        mapfile -t devices <<<"$found"
+        break
+    fi
+    sleep 1
+done
+(( ${#devices[@]} == 1 ))
+device=${devices[0]}
+[[ $device =~ ^/dev/(mmcblk[0-9]+)p[0-9]+$ && -b $device ]]
+disk=${BASH_REMATCH[1]}
+partition=${device#/dev/}
+[[ $(blkid -s PARTUUID -o value "$device") == "$partuuid" ]]
+[[ $(blkid -s TYPE -o value "$device") == ext4 ]]
+parameters=/sys/module/bpi_m4_sd_cmd18/parameters
+verify_sd_policy /sys "$parameters" "$partition" "$disk"
+mount -t ext4 -o rw,noatime "$device" /sysroot
+[[ -x /sysroot/usr/lib/systemd/systemd && -x /sysroot/usr/bin/dnf ]]
+[[ -d /sysroot/usr/lib/modules/$(uname -r) ]]
+for filesystem in proc sys dev run; do
+    mount --move "/$filesystem" "/sysroot/$filesystem"
+done
+echo "BPI_M4_SD_ROOT_READY: $device, PARTUUID=$partuuid"
+trap - EXIT
+exec switch_root /sysroot /usr/lib/systemd/systemd --switched-root --system

@@ -1,0 +1,168 @@
+{
+  "armbian_build_commit": "4d731b2b6790be8cae4f6ce368d54ee2cfea2470",
+  "path": "patch/kernel/archive/realtek-rtd129x-6.18",
+  "patches": [
+    {
+      "name": "0003-irqchip-add-the-Realtek-RTD1295-RTD1296-peripheral-i.patch",
+      "git_blob": "70ec8b7dfed96f8d2a8822a1d559ef78a25ab52c",
+      "sha256": "71d50f3c7cda249edc0a90b6903bbe7b3826c2f447cc87019e8a02366ce910cb",
+      "bytes": 13744
+    },
+    {
+      "name": "0008-net-realtek-add-the-RTD129x-embedded-gigabit-MAC.patch",
+      "git_blob": "9ce6706a6f9e6abc5e384503ee30892b432d8451",
+      "sha256": "385cb4433810561eae77c7a4e67b2c399686cb82cb3d8c1c5ebce336d88bac7b",
+      "bytes": 265218
+    },
+    {
+      "name": "0010-clk-add-the-Realtek-RTD129x-CRT-clock-gates.patch",
+      "git_blob": "89906759a980cc3da9cb5373395fe1e9ff276dca",
+      "sha256": "af7e24ec7b2ec4e6465fb2b7ba7a80998fdd454281402deb46314f2a3a37b4dd",
+      "bytes": 5222
+    },
+    {
+      "name": "0013-sound-add-the-RTD129x-audio-CPU-and-the-HDMI-receive.patch",
+      "git_blob": "173383605e254f2290d0f5094e981cc77af3a059",
+      "sha256": "f0b0edd366688a17b2992c1fa18055732a795d620ad2f1e262a356f709545b7a",
+      "bytes": 85981
+    },
+    {
+      "name": "0014-mmc-host-add-the-Realtek-RTD129x-eMMC-host.patch",
+      "git_blob": "6a886a1fb2226654d707b72f9f22cc6e5735da31",
+      "sha256": "61b798353a369fa15478528d7b40b32bb2027bb95f5a17041dd8041cedead9d5",
+      "bytes": 32568
+    },
+    {
+      "name": "0023-gpio-rtd-do-not-claim-the-interrupt-status-registers.patch",
+      "git_blob": "e7234801fb7370a5fba5dd019906f0dcaff0be66",
+      "sha256": "383af9aca60c679b2f0df320f45fad4ee4f6dd7da2c820bc47b49a8aad97f8e6",
+      "bytes": 1945
+    },
+    {
+      "name": "0030-irqchip-rtd129x-add-the-RTD1395-interrupt-muxes.patch",
+      "git_blob": "048fabed13c867916d909e131fb79f6057088be7",
+      "sha256": "0f0331c48c541b203afa8e7448041c9c7c7f32ec1033adcf76c322bbd1a0ba74",
+      "bytes": 3182
+    },
+    {
+      "name": "0033-mmc-host-emmc-rtd129x-support-the-RTD1395.patch",
+      "git_blob": "afd4ba01caea9ca53ebff3dc5e99f4f089dff0bd",
+      "sha256": "4d86ac0e3589d35f4a82583fc20a94574628b4650cfd1c803084f95319b9add1",
+      "bytes": 2988
+    },
+    {
+      "name": "0034-arm64-dts-realtek-rtd139x-add-muxes-clock-gates-and-.patch",
+      "git_blob": "e3e90c95b2887423989e610b97170d887e8638d3",
+      "sha256": "47e1d4ceb71e4dad43972898099dfe8d2c215c440607efb8763038129e56a337",
+      "bytes": 3984
+    },
+    {
+      "name": "0035-arm64-dts-realtek-bpi-m4-add-the-SD-card-eMMC-and-LE.patch",
+      "git_blob": "3a70d4c2466e5b36c433b221878c4ee10039f12c",
+      "sha256": "2385ee62f704bbb7a5f91f01f6b054ca33979118b204dde06e819d4fbce5afe9",
+      "bytes": 2759
+    },
+    {
+      "name": "0036-net-realtek-r8169soc-support-the-RTD1395.patch",
+      "git_blob": "17cb9a40d4d5cf0ff70ef61978ed48d9922f58af",
+      "sha256": "482c95059aed9d7f3833097365e4a494ccd5dc4ecc2c8645ff8d542dedcbe5a4",
+      "bytes": 43511
+    },
+    {
+      "name": "0037-arm64-dts-realtek-bpi-m4-add-the-Ethernet-port.patch",
+      "git_blob": "2a323d41afee68cf412ed3c1f23e73a12dda8b4b",
+      "sha256": "87c2188e786b5fc47127a3c8e9c806ed10226488be267fa8c7e63605cd02af17",
+      "bytes": 1911
+    },
+    {
+      "name": "0038-usb-dwc3-rtk-apply-the-RTD1395-quirk-by-compatible.patch",
+      "git_blob": "73ae0976d5c3efcdafa9237a1c80f4155db1eb17",
+      "sha256": "05e01a0f98ffe46fc19b6b6ab3347424be1fddaf25e879252e9ae3a604d9619d",
+      "bytes": 1235
+    },
+    {
+      "name": "0039-phy-realtek-usb2-fix-the-PHY-register-of-the-second-.patch",
+      "git_blob": "020219239066e97942ea418a9706dc7392a95d54",
+      "sha256": "c376e6d048c856b17dba721cdeea0ba461446987f35c07d7445093c17dfd29f6",
+      "bytes": 1293
+    },
+    {
+      "name": "0040-arm64-dts-realtek-bpi-m4-add-the-USB-host-ports.patch",
+      "git_blob": "333f5af8ef203434bdec6c7b1746c6f2f57342f7",
+      "sha256": "0f41b32f13acf46ac8dca174acbd7feb74dd5f902004e67fa19cd714dff34799",
+      "bytes": 2464
+    },
+    {
+      "name": "0043-net-realtek-r8169soc-do-not-receive-into-a-slot-with.patch",
+      "git_blob": "8ca5f330341eb43a3ddeacd56a1a60840b569400",
+      "sha256": "65e2b8685c4c1be5bef4ac1726e57483edd27afee8b6fb526bab85a2b59581ac",
+      "bytes": 1533
+    },
+    {
+      "name": "0047-arm64-dts-realtek-bpi-m4-add-the-audio-CPU-for-the-H.patch",
+      "git_blob": "9376508a767859da98b8aff2ab645f5d774a3fa8",
+      "sha256": "581657a7e5004d7ddd41cb35bc6b550db16be1789efdfbd45bd942ebec900fd8",
+      "bytes": 3041
+    },
+    {
+      "name": "0048-sound-rtd129x-acpu-support-the-RTD1395-firmware.patch",
+      "git_blob": "1313240c912a47c56da8dd5961b13b09922f0812",
+      "sha256": "6909796d989608a38560629ebcb3895e61fc6e33b74e5a784d248461e45b4558",
+      "bytes": 5676
+    },
+    {
+      "name": "0049-sound-rtd129x-acpu-take-the-video-output-interrupts.patch",
+      "git_blob": "73678da99cd3c244d68161cad08ef5ee19c9daf1",
+      "sha256": "e0a240041c0de702dc796208ce2fa8de3a420d8679efcc1b4fe2da540827ba9a",
+      "bytes": 3820
+    },
+    {
+      "name": "0050-sound-rtd129x-acpu-add-the-video-output-only-with-a-.patch",
+      "git_blob": "c322f15dc853bf03b0e520a127223454f46b1f15",
+      "sha256": "0dc67992baeef628009fe8d930e49d16947d77a6c2f95a7761f23bde839c03b4",
+      "bytes": 1414
+    },
+    {
+      "name": "0051-arm64-dts-realtek-bpi-m4-add-the-HDMI-framebuffer.patch",
+      "git_blob": "5156cc83807d7b335fc121d5f329ca8428e2056e",
+      "sha256": "4d761273e00b27b77245ea12cb4b5949e2f293641bf4918e45dda9b8564e94b2",
+      "bytes": 2333
+    },
+    {
+      "name": "0052-sound-rtd129x-acpu-add-the-HDMI-audio-output-device.patch",
+      "git_blob": "2869a4bfb25a947dab889ee48e9379b945992e07",
+      "sha256": "dbd3e5d19022ff7f8120da1d3efea28f1cd5ba4a1844a9b5e15a243ad36f74b5",
+      "bytes": 2873
+    },
+    {
+      "name": "0053-sound-rtd129x-acpu-add-HDMI-audio-playback.patch",
+      "git_blob": "7f04406c23862cbb25121cb351a19ec4410fb323",
+      "sha256": "c35fa36b62aa4b33228f7662261a12dbe41b140d882bdbccbef987f675d08d5d",
+      "bytes": 23742
+    },
+    {
+      "name": "0054-arm64-dts-realtek-bpi-m4-enable-HDMI-audio-output.patch",
+      "git_blob": "b618fa509c819d338f865bf039734f3d781812d8",
+      "sha256": "a7e8ff6ce612ae873325ed06c3977f6b523ca64ca675ccb908185fa73d90d5b0",
+      "bytes": 984
+    },
+    {
+      "name": "0055-sound-rtd129x-acpu-route-the-HDMI-audio-output-to-HD.patch",
+      "git_blob": "785a8c5a6b7507f15a88090372fed0bd4efc27f1",
+      "sha256": "a85fdd779c755217a6095f36ee45b8f0ea499805f60cd845e058a442658a5e28",
+      "bytes": 2028
+    },
+    {
+      "name": "0059-arm64-dts-realtek-bpi-m4-enable-the-eMMC.patch",
+      "git_blob": "a98f6fb39f1cec854f9fe7b06fe70341e56a5362",
+      "sha256": "a0da353965406dba582d1c4bd607c2d44451e99750111b4f476ad16fa51144b0",
+      "bytes": 1320
+    },
+    {
+      "name": "0060-net-realtek-r8169soc-report-the-link-speed-on-the-fi.patch",
+      "git_blob": "5f85a3dace874a4ffed8a478d1443ad2dab5a816",
+      "sha256": "fc8895009edd1b14e5ade5374f2e5484dfef321e7e299f1709069db5b1b33cfa",
+      "bytes": 1123
+    }
+  ]
+}

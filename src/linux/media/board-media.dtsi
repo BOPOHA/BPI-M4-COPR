@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-2-Clause)
+/* Media-only additions, after the unchanged PoC peripheral imports. */
+/ {
+    chosen { bananapi,boot-profile = "media"; };
+    reserved-memory {
+        fc_vo_pool: vo@16000000 {
+            compatible = "shared-dma-pool";
+            reg = <0x16000000 0x02000000>;
+            no-map;
+        };
+    };
+};
+&acpu {
+    status = "okay";
+    realtek,crt = <&crt>;
+    memory-region = <&rpc_comm>, <&rpc_ringbuf>, <&fc_audio_heap>,
+                    <&fc_media_heap>, <&fc_audio_fw>, <&fc_vo_pool>;
+    memory-region-names = "comm", "ring", "audio", "media", "firmware", "vo";
+};

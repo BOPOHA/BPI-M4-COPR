@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# The private codec is RPM-owned; Fedora's system FFmpeg libraries stay intact.
+set -euo pipefail
+if (( $# == 0 )); then
+    echo "Usage: sudo openvt -s -w -- $0 [mpv options] /path/to/video" >&2
+    exit 2
+fi
+[[ -r /usr/lib64/bpi-m4-codecs/libavcodec.so.63 ]] || {
+    echo 'Install the matching bpi-m4-native-codecs RPM first.' >&2
+    exit 1
+}
+export LD_LIBRARY_PATH=/usr/lib64/bpi-m4-codecs
+exec /usr/bin/mpv --no-config --vo=drm --drm-device=/dev/dri/card0 \
+    --hwdec=no --no-audio --vd-lavc-threads=4 --no-osc --osd-level=0 "$@"

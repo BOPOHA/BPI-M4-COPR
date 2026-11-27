@@ -1,0 +1,131 @@
+Subject: [PATCH] Integrate the RTD1395 Banana Pi M4 drivers and board labels
+
+Register the retained SD, Ethernet, clock, IRQ, eMMC and ACPU ports with
+Kconfig/Kbuild. Allow the platform Ethernet driver without PCI and label
+the existing reserved-memory nodes used by the peripheral DTS fragment.
+
+Keep board integration separate from the attributed driver source imports.
+See docs/PROVENANCE.md for driver source attribution.
+
+--- a/drivers/mmc/host/Kconfig
++++ b/drivers/mmc/host/Kconfig
+@@ -1156,3 +1156,12 @@
+ 	  module will be called litex_mmc.
+ 
+ 	  If unsure, say N.
++
++config BPI_M4_SD_PROBE
++	tristate "Audited BPI-M4 polling SD host"
++	depends on ARCH_REALTEK && MMC
++
++config MMC_RTD129X_EMMC
++	tristate "BPI-M4 guarded read-only eMMC"
++	depends on ARCH_REALTEK && OF
++	select MFD_SYSCON
+--- a/drivers/mmc/host/Makefile
++++ b/drivers/mmc/host/Makefile
+@@ -115,3 +115,8 @@
+ 
+ obj-$(CONFIG_MMC_SDHCI_XENON)	+= sdhci-xenon-driver.o
+ sdhci-xenon-driver-y		+= sdhci-xenon.o sdhci-xenon-phy.o
++
++obj-$(CONFIG_BPI_M4_SD_PROBE) += bpi-m4-sd-cmd18.o
++CFLAGS_bpi-m4-sd-cmd18.o += -DBPI_M4_SD_PROFILE
++
++obj-$(CONFIG_MMC_RTD129X_EMMC) += emmc-rtd129x.o
+--- a/drivers/net/ethernet/realtek/Kconfig
++++ b/drivers/net/ethernet/realtek/Kconfig
+@@ -6,7 +6,7 @@
+ config NET_VENDOR_REALTEK
+ 	bool "Realtek devices"
+ 	default y
+-	depends on PCI
++	depends on PCI || ARCH_REALTEK
+ 	help
+ 	  If you have a network (Ethernet) card belonging to this class, say Y.
+ 
+@@ -127,3 +127,8 @@
+ 	  will be called rtase. This is recommended.
+ 
+ endif # NET_VENDOR_REALTEK
++
++config BPI_M4_ETHERNET
++	tristate "Audited BPI-M4 Ethernet"
++	depends on ARCH_REALTEK && NETDEVICES && NET_VENDOR_REALTEK
++	select MII
+--- a/drivers/net/ethernet/realtek/Makefile
++++ b/drivers/net/ethernet/realtek/Makefile
+@@ -9,3 +9,5 @@
+ r8169-$(CONFIG_R8169_LEDS) += r8169_leds.o
+ obj-$(CONFIG_R8169) += r8169.o
+ obj-$(CONFIG_RTASE) += rtase/
++
++obj-$(CONFIG_BPI_M4_ETHERNET) += bpi-m4-ethernet.o
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -590,3 +590,7 @@
+ 	  Kunit test for the clk-divider type.
+ 
+ endif
++
++config COMMON_CLK_RTD129X_CRT
++	bool "RTD1395 clock gates"
++	depends on ARCH_REALTEK && OF
+--- a/drivers/clk/Makefile
++++ b/drivers/clk/Makefile
+@@ -183,3 +183,5 @@
+ obj-y					+= xilinx/
+ obj-$(CONFIG_ARCH_ZYNQ)			+= zynq/
+ obj-$(CONFIG_COMMON_CLK_ZYNQMP)         += zynqmp/
++
++obj-$(CONFIG_COMMON_CLK_RTD129X_CRT) += clk-rtd129x-crt.o
+--- a/drivers/irqchip/Kconfig
++++ b/drivers/irqchip/Kconfig
+@@ -841,3 +841,8 @@
+ 	  the primary controller on C-Chip.
+ 
+ endmenu
++
++config REALTEK_RTD129X_IRQ_MUX
++	bool "RTD1395 peripheral IRQ mux"
++	depends on ARCH_REALTEK && OF
++	select IRQ_DOMAIN
+--- a/drivers/irqchip/Makefile
++++ b/drivers/irqchip/Makefile
+@@ -135,3 +135,5 @@
+ obj-$(CONFIG_MCHP_EIC)			+= irq-mchp-eic.o
+ obj-$(CONFIG_SOPHGO_SG2042_MSI)		+= irq-sg2042-msi.o
+ obj-$(CONFIG_SUNPLUS_SP7021_INTC)	+= irq-sp7021-intc.o
++
++obj-$(CONFIG_REALTEK_RTD129X_IRQ_MUX) += irq-rtd129x.o
+--- a/sound/Kconfig
++++ b/sound/Kconfig
+@@ -110,3 +110,5 @@
+ 	  sound subsystem and other function drivers completely unrelated to
+ 	  sound although they're sharing the AC97 bus. Concerned drivers
+ 	  should "select" this.
++
++source "sound/realtek-rtd129x-acpu/Kconfig"
+--- a/sound/Makefile
++++ b/sound/Makefile
+@@ -18,3 +18,5 @@
+ endif
+ 
+ soundcore-y  := sound_core.o
++
++obj-$(CONFIG_RTD129X_ACPU) += realtek-rtd129x-acpu/
+--- a/arch/arm64/boot/dts/realtek/bpi-m4-fc.dts
++++ b/arch/arm64/boot/dts/realtek/bpi-m4-fc.dts
+@@ -35,9 +35,9 @@
+ &rpc_ringbuf { no-map; };
+ / {
+     reserved-memory {
+-        audio@2600000 { reg = <0x02600000 0x00c00000>; no-map; };
+-        media@3200000 { reg = <0x03200000 0x0c700000>; no-map; };
+-        acpu@f900000 { reg = <0x0f900000 0x00500000>; no-map; };
++        fc_audio_heap: audio@2600000 { reg = <0x02600000 0x00c00000>; no-map; };
++        fc_media_heap: media@3200000 { reg = <0x03200000 0x0c700000>; no-map; };
++        fc_audio_fw: acpu@f900000 { reg = <0x0f900000 0x00500000>; no-map; };
+         idmem@10000000 { reg = <0x10000000 0x00014000>; no-map; };
+         framebuffer@14200000 { reg = <0x14200000 0x00900000>; no-map; };
+         acpu-boot@1fc00000 { reg = <0x1fc00000 0x1000>; no-map; };

@@ -1,0 +1,215 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Install complete immutable boot bundles, then atomically select an extlinux menu.
+set -Eeuo pipefail
+export LC_ALL=C PATH=/usr/sbin:/usr/bin:/sbin:/bin
+umask 022
+root=/
+if [[ ${1:-} == --root ]]; then root=$(realpath -e "${2:?}"); shift 2; fi
+action=${1:-} release=${2:-}
+die() { echo "bpi-m4-bootctl: $*" >&2; exit 1; }
+[[ $action == add || $action == remove || $action == set-default || $action == set-mode || $action == status || $action == list || $action == verify ]] ||
+    die 'Usage: bpi-m4-bootctl [--root DIRECTORY] add|remove|set-default RELEASE | set-mode server|media | list | verify'
+if [[ $action != list && $action != verify && $action != status ]]; then
+    [[ $root != / || $EUID == 0 ]] || die 'Changing the live boot configuration requires root.'
+    if [[ $action == set-mode ]]; then
+        [[ $release == server || $release == media ]] || die 'Mode must be server or media.'
+    else
+        [[ $release =~ ^[0-9][[:alnum:]_.+-]{0,127}$ ]] || die 'Invalid kernel release.'
+    fi
+fi
+root=${root%/}
+boot=$root/boot/bpi-m4
+menu=$root/boot/extlinux/extlinux.conf
+for directory in "$root/boot" "$boot" "$root/boot/extlinux" "$root/run" "$root/run/lock"; do
+    [[ ! -L $directory ]] || die "Unexpected symlink: $directory"
+done
+stage= temporary=
+cleanup() {
+    [[ -z $stage ]] || rm -rf -- "$stage"
+    [[ -z $temporary ]] || rm -f -- "$temporary"
+}
+trap cleanup EXIT
+profile_of() {
+    local directory=$1 profile=server
+    # Earlier SPI kernels have no profile record and are Server-only.
+    if [[ -e $directory/boot-profile || -L $directory/boot-profile ]]; then
+        [[ -s $directory/boot-profile && ! -L $directory/boot-profile ]] || die 'Invalid boot profile record.'
+        profile=$(cat "$directory/boot-profile")
+        [[ $profile == server || $profile == media ]] || die 'Invalid boot profile.'
+        grep -Eq '^[[:xdigit:]]{64}  boot-profile$' "$directory/SHA256SUMS" || die 'Boot profile checksum missing.'
+    fi
+    printf '%s\n' "$profile"
+}
+check_media() {
+    local firmware=$root/usr/lib/firmware/realtek/rtd1395 helper
+    for helper in bpi-m4-hdmi-start bpi-m4-play mpv; do
+        [[ -x $root/usr/bin/$helper ]] || die 'Media packages missing: run dnf install bpi-m4-media.'
+    done
+    [[ -s $firmware/bluecore.audio && ! -L $firmware/bluecore.audio && -s $firmware/SHA256SUMS && ! -L $firmware/SHA256SUMS ]] ||
+        die 'Media firmware missing: run dnf install bpi-m4-media.'
+    grep -Eq '^[[:xdigit:]]{64}  bluecore.audio$' "$firmware/SHA256SUMS" || die 'Media firmware checksum missing.'
+    (cd "$firmware"; sha256sum --check --strict SHA256SUMS >/dev/null) || die 'Media firmware checksum failed.'
+    if [[ -z $root ]]; then
+        [[ -r /proc/device-tree/chosen/bananapi,spi-media-handoff &&
+           $(tr -d '\0' </proc/device-tree/chosen/bananapi,spi-media-handoff) == v1 ]] ||
+            die 'Current bootloader lacks Media handoff support; update SPI before selecting Media.'
+    fi
+}
+verify_bundle() {
+    local directory=$1 file
+    [[ -d $directory && ! -L $directory ]] || die "Invalid boot bundle: $directory"
+    for file in Image board.dtb initramfs.img SHA256SUMS; do
+        [[ -s $directory/$file && ! -L $directory/$file ]] || die "Missing regular bundle file: $directory/$file"
+    done
+    (cd "$directory"; sha256sum --check --strict SHA256SUMS >/dev/null) || die "Boot bundle checksum failed: $directory"
+    [[ $(od -An -tx1 -j56 -N4 "$directory/Image" | tr -d '[:space:]') == 41524d64 ]] || die 'Invalid AArch64 kernel Image.'
+    [[ $(od -An -tx1 -N4 "$directory/board.dtb" | tr -d '[:space:]') == d00dfeed ]] || die 'Invalid board DTB.'
+    gzip -t "$directory/initramfs.img" || die 'Invalid initramfs gzip stream.'
+    profile_of "$directory" >/dev/null
+}
+bundles() {
+    [[ -d $boot ]] || return 0
+    find "$boot" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -V |
+        while IFS= read -r item; do
+            [[ $item =~ ^[0-9][[:alnum:]_.+-]{0,127}$ ]] && printf '%s\n' "$item" || true
+        done
+}
+if [[ $action == status ]]; then
+    selected=$(sed -n 's/^DEFAULT //p' "$menu")
+    [[ $selected =~ ^[0-9][[:alnum:]_.+-]{0,127}$ ]] || die 'Invalid selected kernel release.'
+    verify_bundle "$boot/$selected"
+    printf 'Next boot: %s (%s)\n' "$(profile_of "$boot/$selected")" "$selected"
+    if [[ -z $root ]]; then
+        running=unknown
+        marker=/proc/device-tree/chosen/bananapi,boot-profile
+        [[ ! -r $marker ]] || running=$(tr -d '\0' <"$marker")
+        printf 'Running: %s (%s)\n' "$running" "$(uname -r)"
+    fi
+    exit 0
+fi
+if [[ $action == list || $action == verify ]]; then
+    while IFS= read -r item; do
+        [[ -n $item ]] || continue
+        [[ $action != verify ]] || verify_bundle "$boot/$item"
+        printf '%s\n' "$item"
+    done <<<"$(bundles)"
+    exit 0
+fi
+mkdir -p "$boot" "${menu%/*}" "$root/run/lock"
+exec 9>"$root/run/lock/bpi-m4-boot.lock"
+flock 9
+[[ ! -L $menu ]] || die 'The extlinux configuration must not be a symlink.'
+if [[ -e $menu ]]; then
+    grep -Fxq '# Managed by bpi-m4-bootctl' "$menu" || die 'Existing extlinux configuration is unmanaged; preserve and review it first.'
+fi
+render() {
+    local preferred=$1 excluded=${2:-} item mode shown= preferred_mode=server latest_server= latest_mode=
+    local -a available=()
+    while IFS= read -r item; do
+        [[ -n $item ]] || continue
+        [[ $item != "$excluded" ]] || continue
+        verify_bundle "$boot/$item"
+        available+=("$item")
+    done <<<"$(bundles)"
+    (( ${#available[@]} )) || die 'Refusing to remove the last bootable entry.'
+    if [[ -n $preferred && -d $boot/$preferred ]]; then preferred_mode=$(profile_of "$boot/$preferred"); fi
+    for item in "${available[@]}"; do
+        mode=$(profile_of "$boot/$item")
+        [[ $mode != server ]] || latest_server=$item
+        [[ $mode != "$preferred_mode" ]] || latest_mode=$item
+    done
+    [[ -n $latest_server ]] || die 'Refusing to remove the last Server kernel.'
+    if [[ -z $preferred || $preferred == "$excluded" ]]; then preferred=${latest_mode:-$latest_server}; fi
+    [[ " ${available[*]} " == *" $preferred "* ]] || die 'Selected release has no complete boot bundle.'
+    [[ $(profile_of "$boot/$preferred") != media ]] || check_media
+    local extra=
+    if [[ -f $root/etc/bpi-m4/kernel-args ]]; then
+        local -a lines
+        mapfile -t lines <"$root/etc/bpi-m4/kernel-args"
+        (( ${#lines[@]} <= 1 )) || die 'kernel-args must contain at most one line.'
+        extra=${lines[0]:-}
+        [[ $extra != *$'\r'* ]] || die 'Invalid kernel arguments.'
+    fi
+    temporary=$(mktemp "${menu%/*}/.extlinux.XXXXXXXX")
+    {
+        printf '# Managed by bpi-m4-bootctl\nDEFAULT %s\nTIMEOUT 30\nMENU TITLE Banana Pi M4\n' "$preferred"
+        # Show the new default first, then older versions for manual fallback.
+        for item in "$preferred" "${available[@]}"; do
+            [[ $item != "$preferred" || -z ${shown:-} ]] || continue
+            if [[ $item == "$preferred" ]]; then shown=1; fi
+            mode=$(profile_of "$boot/$item")
+            printf '\nLABEL %s\n    MENU LABEL %s kernel %s\n' "$item" "$mode" "$item"
+            printf '    LINUX /boot/bpi-m4/%s/Image\n    INITRD /boot/bpi-m4/%s/initramfs.img\n    FDT /boot/bpi-m4/%s/board.dtb\n' "$item" "$item" "$item"
+            printf '    APPEND earlycon=uart8250,mmio32,0x98007800 console=ttyS0,115200 root=${bpi_root} rootfstype=ext4 rw rdinit=/init ${bpi_sd_args} bpi_m4_mode=%s %s\n' "$mode" "$extra"
+        done
+    } >"$temporary"
+    chmod 0644 "$temporary"
+    sync -f "$temporary"
+    mv -f -- "$temporary" "$menu"
+    temporary=
+    sync -f "${menu%/*}"
+}
+case $action in
+add)
+    source=$root/usr/lib/bpi-m4/kernels/$release
+    initrd=$root/usr/lib/bpi-m4/sd-boot
+    [[ -d $root/usr/lib/modules/$release ]] || die 'Matching kernel modules are missing.'
+    for file in "$source/Image" "$source/board.dtb" "$source/SHA256SUMS" "$initrd/initramfs.img" "$initrd/SHA256SUMS"; do
+        [[ -s $file && ! -L $file ]] || die "Missing regular source file: $file"
+    done
+    (cd "$source"; sha256sum --check --strict SHA256SUMS >/dev/null)
+    (cd "$initrd"; sha256sum --check --strict SHA256SUMS >/dev/null)
+    incoming_mode=$(profile_of "$source")
+    if [[ -e $boot/$release ]]; then
+        verify_bundle "$boot/$release"
+        [[ $(profile_of "$boot/$release") == "$incoming_mode" ]] || die 'Existing bundle profile differs from its RPM source.'
+        for file in Image board.dtb; do
+            source_hash=$(sha256sum "$source/$file")
+            bundle_hash=$(sha256sum "$boot/$release/$file")
+            [[ ${source_hash%% *} == "${bundle_hash%% *}" ]] || die 'Existing kernel bundle differs from its RPM source.'
+        done
+    else
+        stage=$(mktemp -d "$root/boot/.bpi-m4-stage.XXXXXXXX")
+        install -m0644 "$source/Image" "$source/board.dtb" "$initrd/initramfs.img" "$stage/"
+        printf '%s\n' "$incoming_mode" >"$stage/boot-profile"
+        (cd "$stage"; sha256sum Image board.dtb initramfs.img boot-profile >SHA256SUMS)
+        chmod 0755 "$stage"
+        verify_bundle "$stage"
+        sync -f "$stage"
+        mv -- "$stage" "$boot/$release"
+        stage=
+        sync -f "$boot"
+    fi
+    selected=$(sed -n 's/^DEFAULT //p' "$menu" 2>/dev/null || true)
+    selected_mode=server
+    if [[ -n $selected && -d $boot/$selected ]]; then selected_mode=$(profile_of "$boot/$selected"); fi
+    # Updates advance only the selected mode. Installing Media keeps Server selected.
+    if [[ $selected_mode == "$incoming_mode" ]]; then
+        while IFS= read -r item; do
+            [[ $(profile_of "$boot/$item") != "$selected_mode" ]] || selected=$item
+        done <<<"$(bundles)"
+    fi
+    render "$selected"
+    ;;
+remove)
+    [[ -e $boot/$release ]] || exit 0
+    [[ -n $root || $(uname -r) != "$release" ]] || die 'Refusing to remove the running kernel.'
+    selected=$(sed -n 's/^DEFAULT //p' "$menu")
+    render "$selected" "$release"
+    rm -rf -- "$boot/$release"
+    sync -f "$boot"
+    ;;
+set-default) render "$release";;
+set-mode)
+    selected=
+    while IFS= read -r item; do
+        [[ -n $item ]] || continue
+        [[ $(profile_of "$boot/$item") != "$release" ]] || selected=$item
+    done <<<"$(bundles)"
+    [[ -n $selected ]] || die "No $release kernel installed. For Media, run dnf install bpi-m4-media."
+    render "$selected"
+    echo "$release selected for subsequent boots. Power off, disconnect power for at least 5 seconds, then power on."
+    ;;
+esac
+echo "bpi-m4-bootctl: $action $release completed"

@@ -1,0 +1,35 @@
+{
+  "vendor_commit": "25f5b88ec4ba34029f964693dc34028b26e6c67c",
+  "files": [
+    {
+      "path": "linux-rtk/arch/arm64/boot/dts/realtek/rtd139x/rtd-1395-bananapi-m4-2GB.dts",
+      "git_blob": "2b216b899d0f86b1af18f1893aa6cd853ac3c1d6",
+      "sha256": "86c0d3822e3612f7ecf06cd763ad038bd6786a8d69624a8380af557cb9c074aa"
+    },
+    {
+      "path": "linux-rtk/arch/arm64/boot/dts/realtek/rtd139x/rtd-139x.dtsi",
+      "git_blob": "4b739666931eecd12d9c42a1e32e27ba842a5c8a",
+      "sha256": "7a750bf0f535b87ba66cd2eef0070eb20b6c1767a6f9ed6d8aec751f9f9ed683"
+    },
+    {
+      "path": "linux-rtk/arch/arm64/configs/rtd139x_bpi_defconfig",
+      "git_blob": "7b9a6883da2407b07074a743ce84a938b82f09e6",
+      "sha256": "8ffa22ffd51e6ce989dc7c36c176d383da478a712d3deab51a9098dab2da1fbe"
+    },
+    {
+      "path": "linux-rtk/drivers/net/wireless/realtek/rtl8821cu/os_dep/linux/usb_intf.c",
+      "git_blob": "4145ccd909ad21b067847788270049ad144d48e7",
+      "sha256": "7e30cbbbfa1113a855d64f29dd6291b51e2ae4277b659787010f7274ba1dfb1d"
+    },
+    {
+      "path": "linux-rtk/drivers/bluetooth/rtk_btusb/rtk_bt.c",
+      "git_blob": "8565c013972850cf2cde20c87893fffd3480424c",
+      "sha256": "fd2e54e5490e856bcfbb44a7a6890bd38c06666ea6bf85836e506cff78f33252"
+    },
+    {
+      "path": "linux-rtk/drivers/mmc/host/rtkemmc.c",
+      "git_blob": "4499e001c56d44dcdb914d118256eef7e4f2ed46",
+      "sha256": "b62920a4728454ec91f7d58d7770bf3ac921b15dd1d9984e2c09e8cf54d146e8"
+    }
+  ]
+}

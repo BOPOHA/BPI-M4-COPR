@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Experimental firmware startup is explicit and never retried in a live boot.
+set -euo pipefail
+(( $# == 0 )) || { echo "Usage: sudo $0" >&2; exit 2; }
+(( EUID == 0 )) || { echo 'Run with sudo on the BPI-M4.' >&2; exit 1; }
+marker=/proc/device-tree/chosen/bananapi,media-startup
+if [[ ! -e /dev/dri/card0 && ! -d /sys/module/rtd129x_acpu ]]; then
+    [[ -r $marker && $(tr -d '\0' < "$marker") == secure-armed-linux-test ]] || {
+        echo 'Checked secure media handoff absent. Use the matching media image and a physical cold boot.' >&2
+        exit 1
+    }
+    modprobe rtd129x_acpu activate=1 start_rings=1
+fi
+# VO probes asynchronously; modprobe success alone does not establish a card.
+for (( attempt=0; attempt<30; attempt++ )); do
+    if [[ -e /dev/dri/card0 ]]; then
+        echo 'DRM card available.'
+        echo 'Player: sudo openvt -s -w -- bpi-m4-play /path/to/video'
+        exit 0
+    fi
+    sleep 1
+done
+echo 'No DRM card after 30 seconds. Capture dmesg; do not unload or retry firmware. A physical cold boot is required for another attempt.' >&2
+exit 1

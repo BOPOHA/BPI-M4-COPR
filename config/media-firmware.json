@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "filename": "bluecore.audio",
+  "bytes": 4319769,
+  "sha256": "774832da0a18c1ba837ff41926502fb8444e83397562c7170c71435416aff4df",
+  "url": "https://raw.githubusercontent.com/BPI-SINOVOIP/BPI-M4-bsp/25f5b88ec4ba34029f964693dc34028b26e6c67c/rtk-pack/rtk/bpi-m4/configs/default/linux/bluecore.audio",
+  "source_revision": "25f5b88ec4ba34029f964693dc34028b26e6c67c",
+  "purpose": "RTD1395 ACPU audio/video-output firmware; experimental media profile only",
+  "signature": "No independently verified vendor signature; immutable source URL and SHA-256 pin",
+  "redistribution": "Local build/test authorized; binary remains outside Git pending redistribution review"
+}

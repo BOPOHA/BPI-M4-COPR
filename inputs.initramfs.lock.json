@@ -1,0 +1,214 @@
+{
+  "packages": [
+    {
+      "arch": "aarch64",
+      "filename": "bash-5.3.15-2.fc45.aarch64.rpm",
+      "license": "GPL-3.0-or-later",
+      "nevra": "bash-5.3.15-2.fc45.aarch64",
+      "sha256": "e0f6d607182b342643ca5669f7a1b97f49b2337ccd9ac356f61d7cb237fb71e1",
+      "signature": "bash-5.3.15-2.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/b/bash-5.3.15-2.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "coreutils-9.11-6.fc45.aarch64.rpm",
+      "license": "GPL-3.0-or-later AND GFDL-1.3-no-invariants-or-later AND LGPL-2.1-or-later AND LGPL-3.0-or-later",
+      "nevra": "coreutils-9.11-6.fc45.aarch64",
+      "sha256": "5bf446a0165da6cf021138808b4b4cbd3e4e5e5221b5803feb8128dd763386ea",
+      "signature": "coreutils-9.11-6.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/c/coreutils-9.11-6.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "coreutils-common-9.11-6.fc45.aarch64.rpm",
+      "license": "GPL-3.0-or-later AND GFDL-1.3-no-invariants-or-later AND LGPL-2.1-or-later AND LGPL-3.0-or-later",
+      "nevra": "coreutils-common-9.11-6.fc45.aarch64",
+      "sha256": "66b1958812d6af80b350984c2dfc4f00ed57322503779d3697b6735b9a0aec1b",
+      "signature": "coreutils-common-9.11-6.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/c/coreutils-common-9.11-6.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "glibc-2.44-2.fc45.aarch64.rpm",
+      "license": "LGPL-2.1-or-later AND SunPro AND LGPL-2.1-or-later WITH GCC-exception-2.0 AND BSD-3-Clause AND GPL-2.0-or-later AND LGPL-2.1-or-later WITH GNU-compiler-exception AND GPL-2.0-only AND ISC AND LicenseRef-Fedora-Public-Domain AND HPND AND CMU-Mach AND LGPL-2.0-or-later AND Unicode-3.0 AND GFDL-1.1-or-later AND GPL-1.0-or-later AND FSFUL AND MIT AND Inner-Net-2.0 AND X11 AND GPL-2.0-or-later WITH GCC-exception-2.0 AND GFDL-1.3-only AND GFDL-1.1-only AND GPL-3.0-or-later AND GPL-3.0-or-later WITH Autoconf-exception-generic-3.0 AND GPL-3.0-or-later WITH Texinfo-exception",
+      "nevra": "glibc-2.44-2.fc45.aarch64",
+      "sha256": "0863899ff099932e9c3e3ba750a19d8dca7ab77c2aeb5eaf64fefc20cdbed075",
+      "signature": "glibc-2.44-2.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/updates/45/Everything/aarch64/Packages/g/glibc-2.44-2.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "libblkid-2.42.4-1.fc45.aarch64.rpm",
+      "license": "LGPL-2.1-or-later",
+      "nevra": "libblkid-2.42.4-1.fc45.aarch64",
+      "sha256": "c8791bbea9aabc5fefcbac87c40759b27484e1d6313738970d694f3ceb6a6f23",
+      "signature": "libblkid-2.42.4-1.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/l/libblkid-2.42.4-1.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "libcap-2.78-2.fc45.aarch64.rpm",
+      "license": "BSD-3-Clause OR GPL-2.0-only",
+      "nevra": "libcap-2.78-2.fc45.aarch64",
+      "sha256": "51a847164c902314d7d0a82afd7c57eb63e3896ec353626ea78efc68ec76d62b",
+      "signature": "libcap-2.78-2.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/l/libcap-2.78-2.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "libeconf-0.7.9-4.fc45.aarch64.rpm",
+      "license": "MIT",
+      "nevra": "libeconf-0.7.9-4.fc45.aarch64",
+      "sha256": "0bd5a2e7905caef35ce398184fbf289dea5d7a4c133b42b37900cd9002677c39",
+      "signature": "libeconf-0.7.9-4.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/l/libeconf-0.7.9-4.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "libgcc-16.2.1-3.fc45.aarch64.rpm",
+      "license": "GPL-3.0-or-later AND LGPL-3.0-or-later AND (GPL-3.0-or-later WITH GCC-exception-3.1) AND (GPL-3.0-or-later WITH Texinfo-exception) AND (LGPL-2.1-or-later WITH GCC-exception-2.0) AND (GPL-2.0-or-later WITH GCC-exception-2.0) AND (GPL-2.0-or-later WITH GNU-compiler-exception) AND BSL-1.0 AND GFDL-1.3-or-later AND Linux-man-pages-copyleft-2-para AND SunPro AND BSD-1-Clause AND BSD-2-Clause AND BSD-2-Clause-Views AND BSD-3-Clause AND BSD-4-Clause AND BSD-Source-Code AND Zlib AND MIT AND Apache-2.0 AND (Apache-2.0 WITH LLVM-Exception) AND ZPL-2.1 AND ISC AND LicenseRef-Fedora-Public-Domain AND HP-1986 AND curl AND Martin-Birgmeier AND HPND-Markus-Kuhn AND dtoa AND SMLNJ AND AMD-newlib AND OAR AND HPND-merchantability-variant AND HPND-Intel",
+      "nevra": "libgcc-16.2.1-3.fc45.aarch64",
+      "sha256": "3e79e3f12c4e4c6836bb28075cbf9409b15cc77de26366adc0657962755d0e7f",
+      "signature": "libgcc-16.2.1-3.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/updates/45/Everything/aarch64/Packages/l/libgcc-16.2.1-3.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "libmount-2.42.4-1.fc45.aarch64.rpm",
+      "license": "LGPL-2.1-or-later",
+      "nevra": "libmount-2.42.4-1.fc45.aarch64",
+      "sha256": "c21bbc6477b05a239fac8ff6e8f7e3e81afe4d3d51c4ead30f4593c383027084",
+      "signature": "libmount-2.42.4-1.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/l/libmount-2.42.4-1.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "libselinux-3.11-5.fc45.aarch64.rpm",
+      "license": "LicenseRef-Fedora-Public-Domain",
+      "nevra": "libselinux-3.11-5.fc45.aarch64",
+      "sha256": "21ca8be5ae0a8094a3ea72cb42e2487745e3b1b1f911ff204875a972b4cee2ea",
+      "signature": "libselinux-3.11-5.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/l/libselinux-3.11-5.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "libsmartcols-2.42.4-1.fc45.aarch64.rpm",
+      "license": "LGPL-2.1-or-later",
+      "nevra": "libsmartcols-2.42.4-1.fc45.aarch64",
+      "sha256": "2188ced6c5ead0d574e39bed7017a9dfb94af2f3db3ffee6ace86c9ce5263573",
+      "signature": "libsmartcols-2.42.4-1.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/l/libsmartcols-2.42.4-1.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "libuuid-2.42.4-1.fc45.aarch64.rpm",
+      "license": "BSD-3-Clause",
+      "nevra": "libuuid-2.42.4-1.fc45.aarch64",
+      "sha256": "4fa7878f4ec1102a7259e5800041a5cff8c79c37c1ca2cfb851776c5fb235a37",
+      "signature": "libuuid-2.42.4-1.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/l/libuuid-2.42.4-1.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "libxcrypt-4.5.2-4.fc45.aarch64.rpm",
+      "license": "LGPL-2.1-or-later AND BSD-3-Clause AND BSD-2-Clause AND BSD-2-Clause-FreeBSD AND 0BSD AND CC0-1.0 AND LicenseRef-Fedora-Public-Domain",
+      "nevra": "libxcrypt-4.5.2-4.fc45.aarch64",
+      "sha256": "5bf1fa1c778fa58cd92f3a00a17443caac1af88b062bda390ec1ec83da11d179",
+      "signature": "libxcrypt-4.5.2-4.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/l/libxcrypt-4.5.2-4.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "libzstd-1.5.7-6.fc45.aarch64.rpm",
+      "license": "BSD-3-Clause OR GPL-2.0-only",
+      "nevra": "libzstd-1.5.7-6.fc45.aarch64",
+      "sha256": "2f03a5fff8bcc8de912776c52e43b47d79f0c19d1c6fb9bbaebc1493e28b37c8",
+      "signature": "libzstd-1.5.7-6.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/l/libzstd-1.5.7-6.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "ncurses-libs-6.6-3.fc45.aarch64.rpm",
+      "license": "MIT-open-group",
+      "nevra": "ncurses-libs-6.6-3.fc45.aarch64",
+      "sha256": "d844e86e8ac8a00e42428bd280f047ccf601df20f2435a238b3f3ec49aabd16d",
+      "signature": "ncurses-libs-6.6-3.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/n/ncurses-libs-6.6-3.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "pcre2-10.49-1.fc45.aarch64.rpm",
+      "license": "BSD-3-Clause AND FSFULLR AND X11 AND GPL-2.0-or-later AND FSFAP AND FSFUL AND GPL-3.0-or-later",
+      "nevra": "pcre2-10.49-1.fc45.aarch64",
+      "sha256": "b22baea26f4c9b3fb769a32831f39cfdb08896462b71dacdccc08c209c90f560",
+      "signature": "pcre2-10.49-1.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/updates/45/Everything/aarch64/Packages/p/pcre2-10.49-1.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "systemd-libs-262.1-1.fc45.aarch64.rpm",
+      "license": "LGPL-2.1-or-later AND MIT",
+      "nevra": "systemd-libs-262.1-1.fc45.aarch64",
+      "sha256": "c760cb0497604468aff8e43773a342772733643afa5ab31fbfe3df6dbb4e0e3e",
+      "signature": "systemd-libs-262.1-1.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/updates/45/Everything/aarch64/Packages/s/systemd-libs-262.1-1.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "util-linux-2.42.4-1.fc45.aarch64.rpm",
+      "license": "GPL-1.0-or-later AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-or-later AND LGPL-2.1-or-later AND BSD-2-Clause AND BSD-3-Clause AND BSD-4-Clause-UC AND LicenseRef-Fedora-Public-Domain",
+      "nevra": "util-linux-2.42.4-1.fc45.aarch64",
+      "sha256": "6f3a027be164f022b3958df87275764e936dc855d772c016b1a79502762402f3",
+      "signature": "util-linux-2.42.4-1.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/u/util-linux-2.42.4-1.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "util-linux-core-2.42.4-1.fc45.aarch64.rpm",
+      "license": "GPL-2.0-only AND GPL-2.0-or-later AND BSD-2-Clause AND BSD-3-Clause AND BSD-4-Clause-UC AND LicenseRef-Fedora-Public-Domain",
+      "nevra": "util-linux-core-2.42.4-1.fc45.aarch64",
+      "sha256": "eb4c36512fcf9f9799ee7c2dddf819141323aff15a9b03793f9f30cef7b18edd",
+      "signature": "util-linux-core-2.42.4-1.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/u/util-linux-core-2.42.4-1.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "xz-libs-5.8.3-2.fc45.aarch64.rpm",
+      "license": "0BSD",
+      "nevra": "xz-libs-1:5.8.3-2.fc45.aarch64",
+      "sha256": "c9ffaa93076ebb332e466e0abf4cea1c515b0a8c66e6545a7051797458be22ad",
+      "signature": "xz-libs-5.8.3-2.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/x/xz-libs-5.8.3-2.fc45.aarch64.rpm"
+    },
+    {
+      "arch": "aarch64",
+      "filename": "zlib-ng-compat-2.3.3-6.fc45.aarch64.rpm",
+      "license": "Zlib",
+      "nevra": "zlib-ng-compat-2.3.3-6.fc45.aarch64",
+      "sha256": "bb96984c638d11c10005e464a58ae27bf09472a158c90cb830d6ea3cfeb0fe78",
+      "signature": "zlib-ng-compat-2.3.3-6.fc45.aarch64.rpm: digests signatures OK",
+      "signer": "4F50A6114CD5C6976A7F1179655A4B02F577861E",
+      "url": "https://dl.fedoraproject.org/pub/fedora/linux/releases/45/Everything/aarch64/os/Packages/z/zlib-ng-compat-2.3.3-6.fc45.aarch64.rpm"
+    }
+  ]
+}

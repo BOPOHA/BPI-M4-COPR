@@ -1,0 +1,12 @@
+{
+  "kernel": {
+    "filename": "linux-7.3.5.tar.xz",
+    "sha256": "8f293f83d54f0b7b9be56863ebc5e4ea79d73e530b4ae55c572be97ef39f0990",
+    "signature_filename": "linux-7.3.5.tar.sign",
+    "signature_sha256": "b571fe217a45bb0cefbf4ecbe41451758b346956b1f934adabe3075b0fa27541",
+    "signature_url": "https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-7.3.5.tar.sign",
+    "signer": "647F28654894E3BD457199BE38DBBDC86092693E",
+    "url": "https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-7.3.5.tar.xz",
+    "version": "7.3.5"
+  }
+}
