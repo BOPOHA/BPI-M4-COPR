@@ -1,17 +1,20 @@
-Destination: https://copr.fedorainfracloud.org/coprs/vorona/bpi-m4/
-Chroot: fedora-45-aarch64. Git: https://github.com/BOPOHA/BPI-M4-COPR
+Native ARM64 builder and repository host:
+https://copr.fedorainfracloud.org/coprs/vorona/bpi-m4/
+Git sources: https://github.com/BOPOHA/BPI-M4-COPR
 
-Do not upload optional vendor firmware until redistribution rights are resolved.
-Required Server packages: board-support, kernel (plus native devel), sd-boot.
-Use successful native builds and the project's actual GPG key for IMAGE locks.
-Native dependency parsing is not proof of successful native compilation.
+Server submissions (fedora-45-aarch64):
+- 11396974: board-support (includes optional Media support/metapackage)
+- 11396975: generic sd-boot (native build succeeded)
+- 11396976: Server kernel release 5 and matching native kernel-devel
 
-copr-cli is installed rootlessly at /tmp/bpi-copr-bin/copr-cli for this session.
-~/.config/copr needs the [copr-cli] API credentials from
-https://copr.fedorainfracloud.org/api/. No new COPR builds submitted.
+Local x86_64 Mock runs validate source extraction with cross tools. COPR is the
+native aarch64 builder and package repository. The redundant laptop kernel
+build was canceled; it is not the release artifact source.
 
-After credentials are configured:
+Do not upload vendor firmware until redistribution rights are resolved.
+Native Media kernel/codecs need their own qualification. The default image
+uses only Server packages and does not install devel or SPI artifacts.
 
-```sh
-/tmp/bpi-copr-bin/copr-cli build vorona/bpi-m4 out/srpms/board.src.rpm out/srpms/sd-boot.src.rpm out/srpms/kernel-updates.src.rpm
-```
+Source archives are self-contained; downstream COPR builds perform no network
+source fetches. The image repository refreshes its lock using successful native
+build IDs, signed RPMs, package hashes and the actual COPR key.

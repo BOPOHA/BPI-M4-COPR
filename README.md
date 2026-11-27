@@ -18,3 +18,5 @@ artifact inherits hardware qualification automatically.
 Licensing: extracted code retains GPL/LGPL and imported notices. Selected new
 standalone files use [As-Is Noncommercial terms](licenses/As-Is-Noncommercial.txt).
 See [license scope](LICENSE.md).
+
+Both [native ARM64 and laptop cross builds](docs/BUILD-PATHS.md) are supported.
