@@ -28,7 +28,9 @@ Source preparation needs no Mock or compiler. Its identity fingerprints pinned
 inputs and preparation recipes without querying local Mock versions/config.
 The checked-in public Fedora 45 key is verified against its pinned fingerprint,
 so a source worker running a different Fedora release can verify target RPMs.
-Git ownership exceptions are scoped to subprocesses. Architecture buildroots
+Key fingerprint checks use temporary private GnuPG homes, independent of user
+keyrings or source-worker home directories. Git ownership exceptions are scoped
+to subprocesses. Architecture buildroots
 receive the complete SRPM and compile natively on fedora-45-aarch64.
 
 Reconcile package settings using an authenticated COPR CLI:

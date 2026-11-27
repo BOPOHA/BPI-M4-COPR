@@ -13,6 +13,7 @@ BuildRequires: make
 BuildRequires: git-core
 BuildRequires: patch
 BuildRequires: python3
+BuildRequires: gnupg2
 BuildRequires: rpm
 BuildRequires: jq
 BuildRequires: gzip

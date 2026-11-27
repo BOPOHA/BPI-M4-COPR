@@ -6,6 +6,13 @@ uses cross tools. The same self-contained SRPM supports both paths without
 changing source/configuration pins or its kernel ABI. COPR is the native ARM64
 release builder and repository host. Local Mock is available when COPR is down.
 
+COPR releases pull Git sources using the package defaults in
+packaging/copr-scm.json. See [Git pull configuration](COPR-PULL.md). For example:
+
+```sh
+copr-cli build-package --nowait -r fedora-45-aarch64 --name bpi-m4-kernel vorona/bpi-m4
+```
+
 Laptop development:
 
 ```sh

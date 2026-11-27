@@ -1,9 +1,10 @@
 """Verify Git source selection and source-only build identities."""
 import os
+import tempfile
 from pathlib import Path
 from unittest import TestCase
 from unittest.mock import patch
-from bpi_packaging.common import ROOT
+from bpi_packaging.common import ROOT, FEDORA_FPR, verify_key
 from bpi_packaging.copr_source import selection
 from bpi_packaging.rpm_packages import build_environment, recipe_files
 
@@ -37,3 +38,13 @@ class CoprSourceTests(TestCase):
             self.assertIn(ROOT/'.copr/Makefile', files)
             self.assertIn(ROOT/'bpi_packaging/copr_source.py', files)
             self.assertIn(ROOT/'packaging/keys/RPM-GPG-KEY-fedora-45-primary', files)
+
+    def test_key_verification_ignores_missing_user_gnupg_home(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            missing = Path(temporary)/'absent-keyring'
+            with patch.dict(os.environ, {'GNUPGHOME': str(missing)}):
+                key = ROOT/'packaging/keys/RPM-GPG-KEY-fedora-45-primary'
+                verify_key(key, FEDORA_FPR)
+                with self.assertRaises(ValueError):
+                    verify_key(key, '0'*40)
+            self.assertFalse(missing.exists())

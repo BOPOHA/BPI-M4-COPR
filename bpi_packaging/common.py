@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import tempfile
 import urllib.parse
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -67,7 +68,10 @@ def rpm_db():
     return db
 
 def verify_key(path, fingerprint):
-    result = run(['gpg', '--batch', '--no-options', '--show-keys', '--with-colons', path], capture=True).stdout
+    # Fresh source workers have no user keyring; never depend on operator state.
+    with tempfile.TemporaryDirectory(prefix='bpi-key-check-') as home:
+        result = run(['gpg', '--batch', '--no-options', '--homedir', home,
+                      '--no-autostart', '--show-keys', '--with-colons', path], capture=True).stdout
     fingerprints = [line.split(':')[9] for line in result.splitlines() if line.startswith('fpr:')]
     if not fingerprints or fingerprints[0] != fingerprint:
         raise ValueError('Unexpected primary signing key fingerprint')
