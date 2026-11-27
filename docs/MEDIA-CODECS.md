@@ -1,8 +1,3 @@
-Current workflow: COPR Git pull is the only supported build interface.
-Local SRPM uploads and Mock targets below describe historical work and are
-retired. Use [BUILD-PATHS.md](BUILD-PATHS.md) for current build commands; image
-and SPI builds belong to the independent BPI-M4-IMAGE and BPI-M4-SPI repositories.
-
 # Native software video decoding
 
 The media image builds `bpi-m4-native-codecs`: a private native FFmpeg decoder
@@ -33,29 +28,20 @@ on https://ffmpeg.org/download.html. The builder verifies that identity and
 signature in isolated GPG state, plus exact hashes. Downloads stay in ignored
 cache; Git contains no codec binaries.
 
-Fedora's `aarch64-linux-gnu-gcc` builds against six individually hash/signature
-verified Fedora 45 aarch64 sysroot RPMs. URLs, NEVRAs and the Fedora trust
-fingerprint are in the codec lock. No vendor compiler or libc is used.
-Mock installs the compiler and build dependencies inside its Fedora 45 buildroot;
-see [image prerequisites](BUILD.md).
+COPR builds natively on fedora-45-aarch64 against six hash/signature-verified
+Fedora sysroot RPMs. Their URLs, NEVRAs and trust anchor are pinned in the codec
+lock. No vendor compiler or libc is used. The SPEC retains an optional cross
+toggle; see [BUILD-PATHS.md](BUILD-PATHS.md).
 
 ```sh
-make rpm-codecs JOBS=8
-make img-media OUTPUT=out/media-new.raw WORK_DIR=work/media-new
+make build PACKAGE=bpi-m4-native-codecs
 ```
 
-The standalone target creates an RPM and SRPM without host root; media builds
-include it automatically, and server omits it. The checked-in
-[spec](../packaging/bpi-m4-native-codecs.spec) performs compilation and packaging;
-host Python verifies downloads and collects source inputs. RPM `%prep` extracts
-the signed sysroot RPMs inside Mock, `%build` compiles the private library, and
-`%check` audits its architecture/SONAME and dependencies. The audit JSON is
-packaged with the library and checked against its hash before publishing. Image
-installation checks pinned runtime versions and runs `mpv --version` with the
-private codec library and immediate symbol binding inside the libguestfs appliance.
-Make tracks
-recipe changes and reuses finished products. Stable aliases are
-`out/rpms/bpi-m4-native-codecs.rpm` and `out/srpms/codecs.src.rpm`.
+The COPR source worker verifies inputs and prepares a self-contained SRPM.
+The [SPEC](../packaging/bpi-m4-native-codecs.spec) extracts the sysroot, compiles
+the private library and audits architecture, SONAME and dependencies. Its audit
+JSON, source provenance and license accompany the RPM. Server images exclude
+this optional package; image assembly is maintained in BPI-M4-IMAGE.
 
 The configure recipe enables shared native decoders, Cortex-A53 NEON and
 threads, and disables encoders, external autodetection, programs and networking.

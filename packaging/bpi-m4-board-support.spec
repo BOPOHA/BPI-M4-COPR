@@ -2,7 +2,7 @@ Name: bpi-m4-board-support
 Version: 2
 Source99: bpi-build-id
 %global bpi_recipe %(cat %{SOURCE99})
-Release: 1.%{bpi_recipe}.bpi_m4.fc45
+Release: 2.%{bpi_recipe}.bpi_m4.fc45
 Summary: Configuration and documentation for the original Banana Pi M4
 License: GPL-2.0-or-later
 Source0: bpi-m4-board-support.tar.gz

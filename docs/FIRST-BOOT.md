@@ -3,13 +3,12 @@
 Keep SW2=0, connect UART at 115200 8N1 and physically power on with the flashed
 card. By default, UART (`ttyS0`) automatically opens a root shell without a
 password. Anyone with UART access has full control of the board. Root's password
-remains locked and root SSH login is disabled. Set `uart_root_autologin: false`
-in the build YAML to disable this automatic console login.
+remains locked and root SSH login is disabled. Set `"uart_root_autologin": false`
+in the IMAGE repository JSON configuration to disable this automatic console login.
 
 Find its DHCP address and SSH as the configured user (default `fedora`) with
 your public key. SSH requires public-key authentication for every user; password,
-keyboard-interactive and empty-password authentication are disabled. Server
-starts with a 1 GiB root; media starts with 2 GiB.
+keyboard-interactive and empty-password authentication are disabled. The example image starts with a 2 GiB root.
 
 ## Add an SSH key on the SD card
 
@@ -89,7 +88,7 @@ than 100% of the card. No automatic resizing runs on the board.
 sudo dnf update
 ```
 
-DNF updates Fedora userspace. Kernel/DTB/initramfs/loader changes require matched
-project builds and modules. Boot FAT remains unmounted. eMMC is read-only;
+DNF updates Fedora userspace. Kernel/DTB/initramfs updates come from matched COPR packages. SPI loader
+updates are independent manual operations. Boot FAT remains unmounted. eMMC is read-only;
 Media users start HDMI explicitly with `sudo bpi-m4-hdmi-start`; server includes
 no vendor media firmware. See [firmware dependencies](MEDIA-FIRMWARE.md).

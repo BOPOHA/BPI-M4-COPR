@@ -1,117 +1,26 @@
-Independent extraction validation, 2026-11-27
+# Native build validation
 
-15 OS/package regression tests and the eMMC clock guard passed in fresh local
-Mock. Kernel/boot/codec SPECs support native ARM64 and x86_64 cross builds.
-Native COPR builds succeeded for board-support (11396974), generic boot
-(11396975), Server kernel/devel (11396976), Media kernel/devel (11396990), and
-codecs (11396991). The redundant laptop kernel build was canceled.
+All seven COPR Git pull builds passed on fedora-45-aarch64:
 
-The additional native test 11397005 compiled a small external module from the
-published development RPM, including the eMMC internal header, using the exact
-operator make command with no ARCH/CROSS_COMPILE/LOCALVERSION override. Matching
-vermagic passed without a Linux rebuild. NATIVE-DEVEL-AUDIT-2026-11-27.json
-records packaged ARM64 helpers, configuration, symbols and required headers.
-COPR-BUILDS-2026-11-27.json records public build identities/status.
+| Package | COPR build |
+| --- | --- |
+| Regression checks | 11400869 |
+| SD boot | 11400870 |
+| Server kernel/devel | 11400871 |
+| Media kernel/devel | 11400872 |
+| Native codecs | 11400876 |
+| Board support | 11400877 |
+| Exact r7 devel external-module check | 11400987 |
 
-Vendor firmware was not submitted; redistribution remains unqualified. Native
-compilation does not qualify Media output, eMMC writes or new hardware boots.
-No kernel or module was installed onto the operator's laptop or board.
+The suite passed 20 Python regressions and the compiled eMMC clock guard.
+Both kernels passed ABI, DTB and native module smoke checks. The signed Server
+devel pin was verified and the external-module check passed with matching
+vermagic and the internal MMC header, without ARCH/CROSS/LOCALVERSION overrides.
+See [validation.json](validation.json) for exact public API states and pins.
 
-Python tooling review, 2026-11-27
-
-Renamed bpi_image to bpi_packaging in imports, Make targets, SPEC invocations,
-source recipe identities and self-contained SRPM payloads. Removed unused
-imports, including YAML, and removed the PyYAML host/checks dependency.
-The target dependency resolver, binary audits and controller tests remain Python.
-
-Regular-user make checks passed in Mock: 15 Python regressions and the compiled
-eMMC clock guard. Local make test lacked a C compiler; Mock supplied it without
-host package installation. Affected SRPM archives contain bpi_packaging and no
-bpi_image package paths. Native fedora-45-aarch64 COPR validation also passed:
-
-- SD boot: https://copr.fedorainfracloud.org/coprs/build/11399641
-- Native codecs, including ABI audit: https://copr.fedorainfracloud.org/coprs/build/11399642
-
-COPR-BUILDS-2026-11-27.json records their successful public API states. See
-PYTHON-TOOLING.md for retained Python roles and namespace migration. No kernel
-was rebuilt or installed, no IMAGE input lock changed, and no hardware was flashed.
-
-COPR Git pull migration, 2026-11-27
-
-All seven package defaults now use Git SCM, main, and make_srpm from
-https://github.com/BOPOHA/BPI-M4-COPR.git. COPR-SCM-2026-11-27.json records live
-settings verified against packaging/copr-scm.json. Webhook builds remain off.
-The source worker prepares self-contained SRPMs; native fedora-45-aarch64
-buildroots compile them. Local SRPM and Mock cross paths remain supported.
-
-Twenty Python regressions and the eMMC clock guard passed in regular-user Mock.
-Server and Media source-only preparation produced the expected kernel SRPMs,
-without compiling a kernel. Board source recipe identity matched between the
-laptop and the cold COPR source worker. The source worker uses Fedora 44 and the
-checked-in, fingerprint-verified Fedora 45 key for target RPM verification.
-
-A fresh-source GnuPG home assumption initially failed boot/codec preparation.
-Key fingerprint checks now use isolated temporary GnuPG homes; the new regression
-verifies that an absent user keyring is neither needed nor created. Corrected
-cold-source preparation and native ARM64 pull builds passed:
-
-- Board support: 11399711
-- SD boot: 11399860
-- Native codecs and ABI audit: 11399861
-- Updated regressions: 11399862 (earlier pull checks also passed as 11399785)
-- Exact pinned native kernel-devel module checks: 11399786
-
-COPR-PULL-VALIDATION-2026-11-27.json records successful public API states and the
-recovered source failures. COPR-PULL.md documents UI fields, configuration and
-build-package commands. Kernel package defaults are configured and both source
-profiles were verified; kernels were not recompiled for this migration. Firmware
-publication, hardware qualification and the IMAGE package lock remain separate.
-No host package installation, device write or hardware boot was performed.
-
-Kernel Git pull monitoring and SRPM cleanup, 2026-11-27
-
-The user-triggered native ARM64 kernel build 11399885 succeeded without a kernel
-fix. Redundant copr_source.py orchestration was replaced with scripts/copr-srpm.bash;
-package routing lives in packaging/copr-scm.json. Unused image-era DNF helpers
-and the unused --request option were removed. Twenty Python regressions and the
-eMMC guard passed in regular-user Mock; Bash-source board and regression pull
-builds 11399894/11399895 also succeeded. Both source paths preserve native ARM64
-and laptop cross options.
-
-The requested rerun from the Bash entry point succeeded as 11399915. Kernel update
-revision 6 ensures the changed recipe sorts after revision 5. Published ABI:
-7.3.5-bpi_m4_fc_p10.r6.91b4dc2cb76e
-
-The native devel RPM signature was verified with the pinned COPR key. Its SHA256
-and exact ABI now populate inputs.module-check.lock.json. Native pull build
-11399962 passed the exact make -C TREE M=MODULE modules check against that RPM,
-including the internal MMC card header and matching vermagic, without ARCH,
-CROSS_COMPILE or LOCALVERSION overrides and without recompiling Linux.
-
-KERNEL-PULL-VALIDATION-2026-11-27.json records the successful public API states,
-devel signature verification and artifact pins. No kernel was compiled on the
-laptop, installed on the host or flashed to hardware. The IMAGE lock and
-historical fc checkout are unchanged; hardware boot remains unqualified.
-
-COPR-only cleanup, 2026-11-27
-
-Commit 38dd56a removes local SRPM/Mock build targets, the local binary builder,
-product-cache and audit dispatch, and the unversioned kernel build mode. Internal
-COPR source preparation remains necessary. The unused configured-image initramfs
-branch and codec image-lock argument are removed; codec SPEC ABI checks and boot
-fallback/reinstall guards remain. Historical local build support described above
-is retired. GHA triggering is maintained separately by the operator.
-
-All six affected packages passed native ARM64 Git pull builds: regressions
-11400869, SD boot 11400870, Server kernel/devel 11400871, Media kernel/devel
-11400872, codecs 11400876 and board support 11400877. The regression build passed
-20 Python tests and the compiled eMMC clock guard. Both kernel profiles passed
-their SPEC checks and native external-module smoke tests.
-
-The signed Server r7 devel RPM was verified against the pinned COPR key and its
-checksum and ABI now populate inputs.module-check.lock.json. Native module-check
-build 11400987 passed the exact make -C TREE M=MODULE modules command with the
-internal MMC header and matching vermagic, without ARCH/CROSS/LOCALVERSION
-overrides. COPR-ONLY-VALIDATION-2026-11-27.json records the public API states and
-pins. No laptop kernel compilation, host package installation or hardware writes
-were performed. Historical fc and the IMAGE lock are unchanged.
+Only COPR Git pull is supported. Local upload/Mock builders and unversioned
+kernel builds are retired. Firmware publication and new hardware qualification
+remain unresolved. No laptop kernel build or hardware write was performed.
+[Historical kernel lifecycle evidence](https://github.com/BOPOHA/BPI-M4-fc/blob/ab5375ceb78cdb83a8fc3d87257f866a81a5d35d/docs/hardware/spi-cpu-flash-2026-11-26.md)
+and [eMMC clock investigation](https://github.com/BOPOHA/BPI-M4-fc/blob/ab5375ceb78cdb83a8fc3d87257f866a81a5d35d/docs/hardware/emmc-clock-2026-11-27.md)
+remain in the frozen fc repository.

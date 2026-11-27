@@ -1,8 +1,3 @@
-Current workflow: COPR Git pull is the only supported build interface.
-Local SRPM uploads and Mock targets below describe historical work and are
-retired. Use [BUILD-PATHS.md](BUILD-PATHS.md) for current build commands; image
-and SPI builds belong to the independent BPI-M4-IMAGE and BPI-M4-SPI repositories.
-
 # Media firmware source and startup
 
 The media profile uses the RTD1395 BSP's `bluecore.audio` on the audio CPU
@@ -26,17 +21,10 @@ Media hardware qualification.
 - SHA-256: `774832da0a18c1ba837ff41926502fb8444e83397562c7170c71435416aff4df`.
 
 [config/media-firmware.json](../config/media-firmware.json) pins URL, size and
-digest. The firmware SPEC declares the immutable URL as `Source0`; `rpkg srpm`
-uses RPM's source-fetch capability when verified cached bytes are unavailable.
-The source stage checks the hash and size, and the SPEC's native `%prep` checks
-hash, size, load-area bounds and provenance before installation. Verified bytes
-are cached under ignored `cache/firmware/`. Mock packages them separately as `bpi-m4-media-firmware` at
-`/usr/lib/firmware/realtek/rtd1395/bluecore.audio` on root p2. The image manifest
-records its provenance. It is owned by a local hash-checked RPM, not a
-Fedora-signed input. `make srpm-firmware` emits the SRPM containing the blob;
-`make rpm-firmware` prepares that SRPM and rebuilds it with Mock;
-both remain local artifacts. Redistribution rights are not established; check
-the upstream distribution terms before sharing the firmware or its RPM/SRPM.
+digest. The retained firmware SPEC documents its source and hash, size,
+load-area and provenance checks. It is excluded from packaging/copr-scm.json;
+there is no supported local build target. Redistribution rights are unresolved.
+Review upstream terms before any firmware publication. Server images exclude it.
 
 The vendor `.enc.A01`, `uInitrd`, `uEnv.txt` and U-Boot binary are not build
 inputs. The SD loader, kernel and initramfs are source-built here. Existing
@@ -47,8 +35,7 @@ onboard SPI/DDR initialization remains a separate required dependency.
 The common SPI loader verifies inactive media state and reserved-memory layout,
 arms/readbacks the EL3 secure startup flag, leaves the ACPU clock off, and
 records a fresh handoff in `/chosen`. Linux verifies the exact firmware size/hash
-when explicitly loading it. The legacy SD loader also verifies the blob before
-handoff. One-step boot display is deferred. Ordinary Fedora boot keeps
+when explicitly loading it. One-step boot display is deferred. Ordinary Fedora boot keeps
 ACPU loading blacklisted and activation parameters false.
 
 ```sh

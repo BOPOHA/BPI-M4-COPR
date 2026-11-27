@@ -6,7 +6,7 @@ Name: bpi-m4-sd-boot
 Version: 2
 Source99: bpi-build-id
 %global bpi_recipe %(cat %{SOURCE99})
-Release: 1.%{bpi_recipe}.bpi_m4.fc45
+Release: 2.%{bpi_recipe}.bpi_m4.fc45
 Summary: Generic SD initramfs and atomic extlinux kernel activation for BPI-M4
 License: GPL-2.0-or-later
 Source0: bpi-m4-sd-boot-inputs.tar.gz
