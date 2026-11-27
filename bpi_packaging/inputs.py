@@ -9,7 +9,7 @@ def fedora_key_input():
     fedora = ROOT / 'cache/keys/fedora-45.asc'
     fedora.parent.mkdir(parents=True, exist_ok=True)
     if not fedora.exists():
-        shutil.copyfile('/usr/share/pki/rpm-gpg/RPM-GPG-KEY-fedora-45-primary', fedora)
+        shutil.copyfile(ROOT/'packaging/keys/RPM-GPG-KEY-fedora-45-primary', fedora)
     verify_key(fedora, FEDORA_FPR)
     return fedora
 

@@ -24,3 +24,6 @@ Both [native ARM64 and laptop cross builds](docs/BUILD-PATHS.md) are supported.
 
 See [Python tooling review](docs/PYTHON-TOOLING.md) for retained build/test roles
 and removed dependencies.
+
+[COPR Git pull builds](docs/COPR-PULL.md) use the checked-in `.copr/Makefile`
+with source method `make_srpm`; COPR prepares SRPMs from this repository itself.

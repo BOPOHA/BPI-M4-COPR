@@ -26,6 +26,10 @@ RPKG_CONFIG = SPECS/'rpkg.conf'
 
 
 def build_environment():
+    if os.environ.get('BPI_COPR_SOURCE') == '1':
+        # Stable across source worker architectures and installed Mock versions.
+        # Inputs and all source-preparation recipes are fingerprinted separately.
+        return {'mode': 'copr-scm', 'format': 1}
     configs = [RPKG_CONFIG, MOCK_CONFIG, Path('/etc/mock/fedora-45-x86_64.cfg'),
         Path('/etc/mock/templates/fedora-branched.tpl'), Path('/etc/mock/site-defaults.cfg'),
         Path('/etc/mock/chroot-aliases.cfg'), Path.home()/'.config/mock.cfg']
@@ -41,6 +45,9 @@ def identity(inputs, files):
 
 def recipe_files(*paths):
     files = [Path(__file__), ROOT/'bpi_packaging/common.py', ROOT/'bpi_packaging/inputs.py', ROOT/'scripts/clean-rpm-work.bash', ROOT/'scripts/build-rpm.bash', ROOT/'scripts/build-srpm.bash', RPKG_CONFIG]
+    if os.environ.get('BPI_COPR_SOURCE') == '1':
+        files.extend([ROOT/'.copr/Makefile', ROOT/'bpi_packaging/copr_source.py',
+                      ROOT/'packaging/keys/RPM-GPG-KEY-fedora-45-primary'])
     for name in paths:
         path = ROOT/name
         files.extend(p for p in path.rglob('*') if p.is_file() and '__pycache__' not in p.parts) if path.is_dir() else files.append(path)

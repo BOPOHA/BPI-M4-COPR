@@ -6,7 +6,7 @@ if (( $# != 6 )); then
     exit 2
 fi
 config=$1 spec=$2 work=$3 build_id=$4 profile=$5 version=$6
-[[ $EUID != 0 ]] || { echo 'Run as your regular user.' >&2; exit 1; }
+[[ $EUID != 0 || ${BPI_COPR_SOURCE:-0} == 1 ]] || { echo 'Run as your regular user.' >&2; exit 1; }
 [[ $build_id =~ ^[0-9a-f]{12}$ ]]
 [[ $profile == server || $profile == media ]]
 printf '%s\n' "$build_id" > "$work/SOURCES/bpi-build-id"

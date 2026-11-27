@@ -1,0 +1,15 @@
+{
+  "project": "vorona/bpi-m4",
+  "clone_url": "https://github.com/BOPOHA/BPI-M4-COPR.git",
+  "committish": "main",
+  "method": "make_srpm",
+  "packages": [
+    {"name": "bpi-m4-board-support", "spec": "packaging/bpi-m4-board-support.spec"},
+    {"name": "bpi-m4-kernel", "spec": "packaging/bpi-m4-kernel.spec"},
+    {"name": "bpi-m4-kernel-media", "spec": "packaging/bpi-m4-kernel-media.spec"},
+    {"name": "bpi-m4-sd-boot", "spec": "packaging/bpi-m4-sd-boot.spec"},
+    {"name": "bpi-m4-native-codecs", "spec": "packaging/bpi-m4-native-codecs.spec"},
+    {"name": "bpi-m4-module-checks", "spec": "packaging/bpi-m4-module-checks.spec"},
+    {"name": "bpi-m4-build-checks", "spec": "packaging/bpi-m4-build-checks.spec"}
+  ]
+}
