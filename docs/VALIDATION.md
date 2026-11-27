@@ -1,9 +1,18 @@
-Local extraction validation, 2026-11-27
+Independent extraction validation, 2026-11-27
 
-15 independent regression tests passed. C harnesses ran in a fresh regular-user Mock buildroot; the standalone
-checks SRPM built successfully.
+15 OS/package regression tests and the eMMC clock guard passed in fresh local
+Mock. Kernel/boot/codec SPECs support native ARM64 and x86_64 cross builds.
+Native COPR builds succeeded for board-support (11396974), generic boot
+(11396975), Server kernel/devel (11396976), Media kernel/devel (11396990), and
+codecs (11396991). The redundant laptop kernel build was canceled.
 
-Python and Bash syntax checked. GitHub publication is complete. Native COPR board-support and sd-boot
-builds succeeded (11396974/11396975). Native kernel/devel build 11396976
-is running; the redundant laptop cross-kernel build was canceled.
-A new hardware boot remains pending. The historical working evidence does not qualify changed artifacts.
+The additional native test 11397005 compiled a small external module from the
+published development RPM, including the eMMC internal header, using the exact
+operator make command with no ARCH/CROSS_COMPILE/LOCALVERSION override. Matching
+vermagic passed without a Linux rebuild. NATIVE-DEVEL-AUDIT-2026-11-27.json
+records packaged ARM64 helpers, configuration, symbols and required headers.
+COPR-BUILDS-2026-11-27.json records public build identities/status.
+
+Vendor firmware was not submitted; redistribution remains unqualified. Native
+compilation does not qualify Media output, eMMC writes or new hardware boots.
+No kernel or module was installed onto the operator's laptop or board.

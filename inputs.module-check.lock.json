@@ -1,0 +1,7 @@
+{
+  "rpm_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/fedora-45-aarch64/11396976-bpi-m4-kernel/bpi-m4-kernel-devel-7.3.5-5.59e7e69ddaad.bpi_m4.fc45.aarch64.rpm",
+  "rpm_sha256": "86cf46c79fd3391ce61fed00008885fb64a03fadcbbf76ebdd9b508a766c31fb",
+  "key_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/pubkey.gpg",
+  "key_sha256": "6cd682ef4c2a00dbcc5ed86a400194cf45b8c6de8ced7e66ce32be7f5704f86d",
+  "release": "7.3.5-bpi_m4_fc_p10.r5.59e7e69ddaad"
+}

@@ -8,6 +8,8 @@ help:
 	@echo 'make srpms / rpms PROFILE=server|media JOBS=8; make test / checks'
 srpms: srpm-board srpm-kernel-updates srpm-sd-boot
 rpms: rpm-board rpm-kernel-updates rpm-sd-boot
+srpm-module-checks:
+	./scripts/prepare-module-check.bash
 srpm-%:
 	python3 -m bpi_image.rpm_packages $* --profile $(PROFILE) --srpm --jobs $(JOBS)
 rpm-%:
