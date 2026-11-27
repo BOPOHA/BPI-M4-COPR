@@ -37,7 +37,7 @@ The cross sysroot is assembled from pinned Fedora-signed development packages.
 
 %prep
 %setup -q -n ffmpeg-%{version} -a 1
-PYTHONPATH=bpi-m4-codec-inputs python3 -c 'from pathlib import Path; from bpi_image.media_codecs import prepare_sysroot; prepare_sysroot(Path("bpi-m4-codec-inputs").resolve())'
+PYTHONPATH=bpi-m4-codec-inputs python3 -c 'from pathlib import Path; from bpi_packaging.media_codecs import prepare_sysroot; prepare_sysroot(Path("bpi-m4-codec-inputs").resolve())'
 
 %build
 # Fedora's rpmbuild exports host compiler specs; use the audited cross recipe.
@@ -77,8 +77,8 @@ done
 PYTHONPATH=bpi-m4-codec-inputs python3 - "%{buildroot}" <<'PYCODE'
 import sys
 from pathlib import Path
-from bpi_image.common import sha, write_json
-from bpi_image.media_codecs import audit_abi
+from bpi_packaging.common import sha, write_json
+from bpi_packaging.media_codecs import audit_abi
 root = Path(sys.argv[1])
 library = root/'usr/lib64/bpi-m4-codecs/libavcodec.so.63'
 write_json(root/'usr/share/doc/bpi-m4-native-codecs/abi-audit.json',

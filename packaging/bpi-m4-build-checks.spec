@@ -4,7 +4,7 @@ Version: 1
 Source99: bpi-build-id
 %global bpi_recipe %(cat %{SOURCE99})
 Release: 1.%{bpi_recipe}.fc45
-Summary: Build regression checks for the BPI-M4 image tools
+Summary: Build regression checks for the BPI-M4 RPM tools
 License: GPL-2.0-or-later
 BuildArch: noarch
 Source0: bpi-m4-build-checks.tar.gz
@@ -13,7 +13,6 @@ BuildRequires: make
 BuildRequires: git-core
 BuildRequires: patch
 BuildRequires: python3
-BuildRequires: python3-pyyaml
 BuildRequires: rpm
 BuildRequires: jq
 BuildRequires: gzip

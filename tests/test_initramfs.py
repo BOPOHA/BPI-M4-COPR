@@ -5,7 +5,7 @@ import struct
 import unittest
 from unittest.mock import patch
 from types import SimpleNamespace
-from bpi_image.initramfs import closure, copy_target
+from bpi_packaging.initramfs import closure, copy_target
 
 class InitramfsClosureTest(unittest.TestCase):
     def test_loader_directory_and_soname_are_preserved(self):
@@ -28,7 +28,7 @@ class InitramfsClosureTest(unittest.TestCase):
                 if str(args[-1]).endswith('/ld-linux-aarch64.so.1'):
                     text = '(NEEDED) Shared library: [libtransitive.so.1]\n'
                 return SimpleNamespace(stdout=text)
-            with patch('bpi_image.initramfs.run', side_effect=headers):
+            with patch('bpi_packaging.initramfs.run', side_effect=headers):
                 files = closure(root, ['/usr/lib64/libc.so.6'])
             self.assertIn('/usr/lib/ld-linux-aarch64.so.1', files)
             self.assertIn('/usr/lib64/libtransitive.so.1', files)

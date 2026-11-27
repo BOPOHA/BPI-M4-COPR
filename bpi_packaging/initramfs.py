@@ -5,7 +5,6 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import shutil
-import stat
 import struct
 from .common import ROOT, run, sha, write_json
 

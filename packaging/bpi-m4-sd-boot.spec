@@ -43,7 +43,7 @@ for manual fallback. This package does not flash firmware or reboot the board.
 %setup -q -n bpi-m4-sd-boot-inputs
 
 %build
-python3 -m bpi_image.sd_boot .
+python3 -m bpi_packaging.sd_boot .
 
 %install
 dest="%{buildroot}/usr/lib/bpi-m4/sd-boot"

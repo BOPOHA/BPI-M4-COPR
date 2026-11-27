@@ -1,13 +1,9 @@
 """Explicit lock refresh and signature-verified consumption of fixed inputs."""
-import datetime
-import json
 import lzma
 from pathlib import Path
 import shutil
-import subprocess
 import tempfile
-import yaml
-from .common import ROOT, FEDORA_FPR, LINUX_FPR, approved_url, dnf, fetch, run, sha, verify_key, verify_rpm, write_json
+from .common import ROOT, FEDORA_FPR, LINUX_FPR, fetch, run, verify_key
 
 def fedora_key_input():
     fedora = ROOT / 'cache/keys/fedora-45.asc'

@@ -40,7 +40,7 @@ def identity(inputs, files):
 
 
 def recipe_files(*paths):
-    files = [Path(__file__), ROOT/'bpi_image/common.py', ROOT/'bpi_image/inputs.py', ROOT/'scripts/clean-rpm-work.bash', ROOT/'scripts/build-rpm.bash', ROOT/'scripts/build-srpm.bash', RPKG_CONFIG]
+    files = [Path(__file__), ROOT/'bpi_packaging/common.py', ROOT/'bpi_packaging/inputs.py', ROOT/'scripts/clean-rpm-work.bash', ROOT/'scripts/build-rpm.bash', ROOT/'scripts/build-srpm.bash', RPKG_CONFIG]
     for name in paths:
         path = ROOT/name
         files.extend(p for p in path.rglob('*') if p.is_file() and '__pycache__' not in p.parts) if path.is_dir() else files.append(path)
@@ -345,7 +345,7 @@ def prepare_codecs():
     lock = json.loads(LOCK.read_text())
     validate_lock(lock)
     expected = identity(lock, recipe_files('packaging/bpi-m4-native-codecs.spec',
-        'bpi_image/media_codecs.py', 'scripts/bpi-m4-play', 'docs/MEDIA-CODECS.md'))
+        'bpi_packaging/media_codecs.py', 'scripts/bpi-m4-play', 'docs/MEDIA-CODECS.md'))
     previous = cached(name, expected, source=True)
     if previous: return previous
     fedora_key = fedora_key_input()
@@ -359,7 +359,7 @@ def prepare_codecs():
         package = fetch(item['url'], ROOT/'cache/rpms'/item['filename'], item['sha256'])
         verify_rpm(package, fedora_key)
         copy_file(package, tree, 'sysroot-rpms/'+package.name)
-    for relative in ('bpi_image/__init__.py', 'bpi_image/common.py', 'bpi_image/media_codecs.py'):
+    for relative in ('bpi_packaging/__init__.py', 'bpi_packaging/common.py', 'bpi_packaging/media_codecs.py'):
         copy_file(ROOT/relative, tree, relative)
     for source_, dest in ((ROOT/'scripts/bpi-m4-play','bpi-m4-play'), (ROOT/'docs/MEDIA-CODECS.md','MEDIA-CODECS.md')):
         copy_file(source_, tree, dest)
@@ -384,8 +384,8 @@ def prepare_sd_boot():
                re.match(r'(.+?)-[0-9]', p['filename'])[1] in INITRAMFS_PACKAGES]
     expected = identity({'runtime_rpms':runtime, 'boot_mode':'spi'}, recipe_files(
         'packaging/bpi-m4-sd-boot.spec', 'scripts/bpi-m4-bootctl', 'scripts/bpi-m4-mode',
-        'src/initramfs/init-sd', 'src/initramfs/sd-root.bash', 'bpi_image/sd_boot.py', 'bpi_image/initramfs.py',
-        'bpi_image/rpm_extract.py', 'docs/KERNEL-UPDATES.md', 'docs/MODES.md', 'licenses/GPL-2.0.txt'))
+        'src/initramfs/init-sd', 'src/initramfs/sd-root.bash', 'bpi_packaging/sd_boot.py', 'bpi_packaging/initramfs.py',
+        'bpi_packaging/rpm_extract.py', 'docs/KERNEL-UPDATES.md', 'docs/MODES.md', 'licenses/GPL-2.0.txt'))
     previous = cached('sd-boot', expected, source=True)
     if previous: return previous
     fedora_key = fedora_key_input()
@@ -395,8 +395,8 @@ def prepare_sd_boot():
         path = fetch(package['url'], ROOT/'cache/rpms'/package['filename'], package['sha256'])
         verify_rpm(path, fedora_key)
         copy_file(path, tree, 'runtime-rpms/'+package['filename'])
-    for relative in ('bpi_image/__init__.py', 'bpi_image/common.py',
-                     'bpi_image/rpm_extract.py', 'bpi_image/initramfs.py', 'bpi_image/sd_boot.py',
+    for relative in ('bpi_packaging/__init__.py', 'bpi_packaging/common.py',
+                     'bpi_packaging/rpm_extract.py', 'bpi_packaging/initramfs.py', 'bpi_packaging/sd_boot.py',
                      'src/initramfs/init-sd', 'src/initramfs/sd-root.bash', 'scripts/bpi-m4-bootctl', 'scripts/bpi-m4-mode',
                      'docs/KERNEL-UPDATES.md', 'docs/MODES.md', 'licenses/GPL-2.0.txt'):
         copy_file(ROOT/relative, tree, relative)
@@ -413,7 +413,7 @@ def prepare_sd_boot():
 
 
 def prepare_checks():
-    paths = ('Makefile', 'bpi_image', 'src/linux', 'src/initramfs', 'patches/linux',
+    paths = ('Makefile', 'bpi_packaging', 'src/linux', 'src/initramfs', 'patches/linux',
              'packaging', 'scripts', 'tests', 'docs', 'licenses', 'config',
              'inputs.kernel.lock.json', 'inputs.initramfs.lock.json', 'inputs.media-codecs.lock.json')
     files = recipe_files(*paths)

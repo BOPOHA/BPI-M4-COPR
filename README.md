@@ -2,7 +2,7 @@
 
 OS RPM sources and self-contained SRPM preparation; local Mock builds and native aarch64 COPR releases.
 
-Host: Fedora 45; operator installs dependencies `mock mock-core-configs rpkg rpm-build python3-pyyaml gnupg2 git jq` manually. Mock runs
+Host: Fedora 45; operator installs dependencies `mock mock-core-configs rpkg rpm-build python3 gnupg2 git jq` manually. Mock runs
 only through `/usr/bin/mock` as the regular user. No sudo/authentication is
 started by build scripts. No sibling checkout or submodule is required.
 
@@ -21,3 +21,6 @@ standalone files use [As-Is Noncommercial terms](licenses/As-Is-Noncommercial.tx
 See [license scope](LICENSE.md).
 
 Both [native ARM64 and laptop cross builds](docs/BUILD-PATHS.md) are supported.
+
+See [Python tooling review](docs/PYTHON-TOOLING.md) for retained build/test roles
+and removed dependencies.

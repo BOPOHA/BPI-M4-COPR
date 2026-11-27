@@ -11,14 +11,14 @@ rpms: rpm-board rpm-kernel-updates rpm-sd-boot
 srpm-module-checks:
 	./scripts/prepare-module-check.bash
 srpm-%:
-	python3 -m bpi_image.rpm_packages $* --profile $(PROFILE) --srpm --jobs $(JOBS)
+	python3 -m bpi_packaging.rpm_packages $* --profile $(PROFILE) --srpm --jobs $(JOBS)
 rpm-%:
-	python3 -m bpi_image.rpm_packages $* --profile $(PROFILE) --jobs $(JOBS)
+	python3 -m bpi_packaging.rpm_packages $* --profile $(PROFILE) --jobs $(JOBS)
 test:
 	bash tests/check-emmc-clock.bash
 	python3 -m unittest discover -s tests -v
 checks:
-	python3 -m bpi_image.rpm_packages checks --jobs $(JOBS)
+	python3 -m bpi_packaging.rpm_packages checks --jobs $(JOBS)
 clean:
 	./scripts/clean-rpm-work.bash work/rpms out/rpms out/srpms
 clean-hard:
