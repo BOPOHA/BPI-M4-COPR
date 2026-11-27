@@ -67,3 +67,28 @@ build-package commands. Kernel package defaults are configured and both source
 profiles were verified; kernels were not recompiled for this migration. Firmware
 publication, hardware qualification and the IMAGE package lock remain separate.
 No host package installation, device write or hardware boot was performed.
+
+Kernel Git pull monitoring and SRPM cleanup, 2026-11-27
+
+The user-triggered native ARM64 kernel build 11399885 succeeded without a kernel
+fix. Redundant copr_source.py orchestration was replaced with scripts/copr-srpm.bash;
+package routing lives in packaging/copr-scm.json. Unused image-era DNF helpers
+and the unused --request option were removed. Twenty Python regressions and the
+eMMC guard passed in regular-user Mock; Bash-source board and regression pull
+builds 11399894/11399895 also succeeded. Both source paths preserve native ARM64
+and laptop cross options.
+
+The requested rerun from the Bash entry point succeeded as 11399915. Kernel update
+revision 6 ensures the changed recipe sorts after revision 5. Published ABI:
+7.3.5-bpi_m4_fc_p10.r6.91b4dc2cb76e
+
+The native devel RPM signature was verified with the pinned COPR key. Its SHA256
+and exact ABI now populate inputs.module-check.lock.json. Native pull build
+11399962 passed the exact make -C TREE M=MODULE modules check against that RPM,
+including the internal MMC card header and matching vermagic, without ARCH,
+CROSS_COMPILE or LOCALVERSION overrides and without recompiling Linux.
+
+KERNEL-PULL-VALIDATION-2026-11-27.json records the successful public API states,
+devel signature verification and artifact pins. No kernel was compiled on the
+laptop, installed on the host or flashed to hardware. The IMAGE lock and
+historical fc checkout are unchanged; hardware boot remains unqualified.
