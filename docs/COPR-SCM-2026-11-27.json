@@ -1,0 +1,96 @@
+{
+  "packages": [
+    {
+      "auto_rebuild": false,
+      "name": "bpi-m4-board-support",
+      "source_dict": {
+        "clone_url": "https://github.com/BOPOHA/BPI-M4-COPR.git",
+        "committish": "main",
+        "source_build_method": "make_srpm",
+        "spec": "packaging/bpi-m4-board-support.spec",
+        "subdirectory": "",
+        "type": "git"
+      },
+      "source_type": "scm"
+    },
+    {
+      "auto_rebuild": false,
+      "name": "bpi-m4-kernel",
+      "source_dict": {
+        "clone_url": "https://github.com/BOPOHA/BPI-M4-COPR.git",
+        "committish": "main",
+        "source_build_method": "make_srpm",
+        "spec": "packaging/bpi-m4-kernel.spec",
+        "subdirectory": "",
+        "type": "git"
+      },
+      "source_type": "scm"
+    },
+    {
+      "auto_rebuild": false,
+      "name": "bpi-m4-kernel-media",
+      "source_dict": {
+        "clone_url": "https://github.com/BOPOHA/BPI-M4-COPR.git",
+        "committish": "main",
+        "source_build_method": "make_srpm",
+        "spec": "packaging/bpi-m4-kernel-media.spec",
+        "subdirectory": "",
+        "type": "git"
+      },
+      "source_type": "scm"
+    },
+    {
+      "auto_rebuild": false,
+      "name": "bpi-m4-sd-boot",
+      "source_dict": {
+        "clone_url": "https://github.com/BOPOHA/BPI-M4-COPR.git",
+        "committish": "main",
+        "source_build_method": "make_srpm",
+        "spec": "packaging/bpi-m4-sd-boot.spec",
+        "subdirectory": "",
+        "type": "git"
+      },
+      "source_type": "scm"
+    },
+    {
+      "auto_rebuild": false,
+      "name": "bpi-m4-native-codecs",
+      "source_dict": {
+        "clone_url": "https://github.com/BOPOHA/BPI-M4-COPR.git",
+        "committish": "main",
+        "source_build_method": "make_srpm",
+        "spec": "packaging/bpi-m4-native-codecs.spec",
+        "subdirectory": "",
+        "type": "git"
+      },
+      "source_type": "scm"
+    },
+    {
+      "auto_rebuild": false,
+      "name": "bpi-m4-module-checks",
+      "source_dict": {
+        "clone_url": "https://github.com/BOPOHA/BPI-M4-COPR.git",
+        "committish": "main",
+        "source_build_method": "make_srpm",
+        "spec": "packaging/bpi-m4-module-checks.spec",
+        "subdirectory": "",
+        "type": "git"
+      },
+      "source_type": "scm"
+    },
+    {
+      "auto_rebuild": false,
+      "name": "bpi-m4-build-checks",
+      "source_dict": {
+        "clone_url": "https://github.com/BOPOHA/BPI-M4-COPR.git",
+        "committish": "main",
+        "source_build_method": "make_srpm",
+        "spec": "packaging/bpi-m4-build-checks.spec",
+        "subdirectory": "",
+        "type": "git"
+      },
+      "source_type": "scm"
+    }
+  ],
+  "project": "vorona/bpi-m4"
+}

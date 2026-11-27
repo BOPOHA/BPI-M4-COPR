@@ -57,3 +57,9 @@ SCM and local Mock build identities use separate modes, so changing between them
 invalidates cached receipts and can change recipe-versioned package/kernel ABIs.
 A successful kernel release still requires reviewing the IMAGE input lock before
 it is selected for an image. No Git pull build flashes or qualifies hardware.
+
+Validation records: [live package sources](COPR-SCM-2026-11-27.json),
+[pull build results](COPR-PULL-VALIDATION-2026-11-27.json), and
+[validation notes](VALIDATION.md). Support, boot, codecs and checks completed
+native ARM64 Git pull builds. Both kernel source profiles passed source-only
+preparation; kernel binaries were not rebuilt for this migration.

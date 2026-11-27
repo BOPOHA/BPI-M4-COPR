@@ -1,0 +1,145 @@
+{
+  "builds": [
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795788421,
+      "id": 11399711,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-board-support",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11399711/bpi-m4-board-support-2-1.6894f77e56b9.bpi_m4.fc45.src.rpm",
+        "version": "2-1.6894f77e56b9.bpi_m4.fc45"
+      },
+      "started_on": 1795788346,
+      "state": "succeeded",
+      "submitted_on": 1795788263,
+      "submitter": "vorona"
+    },
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795788486,
+      "id": 11399785,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-build-checks",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11399785/bpi-m4-build-checks-1-1.402c013b6d4a.fc45.src.rpm",
+        "version": "1-1.402c013b6d4a.fc45"
+      },
+      "started_on": 1795788414,
+      "state": "succeeded",
+      "submitted_on": 1795788352,
+      "submitter": "vorona"
+    },
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795788498,
+      "id": 11399786,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-module-checks",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11399786/module-checks.src.rpm",
+        "version": "1-1.fa199e44c2b3.fc45"
+      },
+      "started_on": 1795788434,
+      "state": "succeeded",
+      "submitted_on": 1795788353,
+      "submitter": "vorona"
+    },
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795788644,
+      "id": 11399860,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-sd-boot",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11399860/bpi-m4-sd-boot-2-1.dc43ebe9e823.bpi_m4.fc45.src.rpm",
+        "version": "2-1.dc43ebe9e823.bpi_m4.fc45"
+      },
+      "started_on": 1795788580,
+      "state": "succeeded",
+      "submitted_on": 1795788514,
+      "submitter": "vorona"
+    },
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795788804,
+      "id": 11399861,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-native-codecs",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11399861/bpi-m4-native-codecs-9.0.2-4.8cfc5f1e0f25.bpi_m4.fc45.src.rpm",
+        "version": "9.0.2-4.8cfc5f1e0f25.bpi_m4.fc45"
+      },
+      "started_on": 1795788580,
+      "state": "succeeded",
+      "submitted_on": 1795788515,
+      "submitter": "vorona"
+    },
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795788632,
+      "id": 11399862,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-build-checks",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11399862/bpi-m4-build-checks-1-1.8831f3fb7ec7.fc45.src.rpm",
+        "version": "1-1.8831f3fb7ec7.fc45"
+      },
+      "started_on": 1795788580,
+      "state": "succeeded",
+      "submitted_on": 1795788515,
+      "submitter": "vorona"
+    }
+  ],
+  "clone_url": "https://github.com/BOPOHA/BPI-M4-COPR.git",
+  "committish": "main",
+  "kernel_srpm_profiles_verified": [
+    "server",
+    "media"
+  ],
+  "kernels_recompiled": false,
+  "local_emmc_guard": "passed",
+  "local_python_checks": 20,
+  "recovered_source_failures": [
+    11399783,
+    11399784
+  ],
+  "source_fix": "Isolated key verification from missing user GnuPG homes.",
+  "source_method": "git/make_srpm"
+}

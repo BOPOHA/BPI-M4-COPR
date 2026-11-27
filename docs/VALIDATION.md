@@ -35,3 +35,35 @@ bpi_image package paths. Native fedora-45-aarch64 COPR validation also passed:
 COPR-BUILDS-2026-11-27.json records their successful public API states. See
 PYTHON-TOOLING.md for retained Python roles and namespace migration. No kernel
 was rebuilt or installed, no IMAGE input lock changed, and no hardware was flashed.
+
+COPR Git pull migration, 2026-11-27
+
+All seven package defaults now use Git SCM, main, and make_srpm from
+https://github.com/BOPOHA/BPI-M4-COPR.git. COPR-SCM-2026-11-27.json records live
+settings verified against packaging/copr-scm.json. Webhook builds remain off.
+The source worker prepares self-contained SRPMs; native fedora-45-aarch64
+buildroots compile them. Local SRPM and Mock cross paths remain supported.
+
+Twenty Python regressions and the eMMC clock guard passed in regular-user Mock.
+Server and Media source-only preparation produced the expected kernel SRPMs,
+without compiling a kernel. Board source recipe identity matched between the
+laptop and the cold COPR source worker. The source worker uses Fedora 44 and the
+checked-in, fingerprint-verified Fedora 45 key for target RPM verification.
+
+A fresh-source GnuPG home assumption initially failed boot/codec preparation.
+Key fingerprint checks now use isolated temporary GnuPG homes; the new regression
+verifies that an absent user keyring is neither needed nor created. Corrected
+cold-source preparation and native ARM64 pull builds passed:
+
+- Board support: 11399711
+- SD boot: 11399860
+- Native codecs and ABI audit: 11399861
+- Updated regressions: 11399862 (earlier pull checks also passed as 11399785)
+- Exact pinned native kernel-devel module checks: 11399786
+
+COPR-PULL-VALIDATION-2026-11-27.json records successful public API states and the
+recovered source failures. COPR-PULL.md documents UI fields, configuration and
+build-package commands. Kernel package defaults are configured and both source
+profiles were verified; kernels were not recompiled for this migration. Firmware
+publication, hardware qualification and the IMAGE package lock remain separate.
+No host package installation, device write or hardware boot was performed.
