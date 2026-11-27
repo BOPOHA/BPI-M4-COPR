@@ -4,12 +4,12 @@ All seven COPR Git pull builds passed on fedora-45-aarch64:
 
 | Package | COPR build |
 | --- | --- |
-| Regression checks | 11400869 |
-| SD boot | 11400870 |
+| Regression checks | 11401218 |
+| SD boot | 11401220 |
 | Server kernel/devel | 11400871 |
 | Media kernel/devel | 11400872 |
-| Native codecs | 11400876 |
-| Board support | 11400877 |
+| Native codecs | 11401221 |
+| Board support | 11401219 |
 | Exact r7 devel external-module check | 11400987 |
 
 The suite passed 20 Python regressions and the compiled eMMC clock guard.
