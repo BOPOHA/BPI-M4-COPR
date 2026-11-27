@@ -1,0 +1,167 @@
+{
+  "builds": [
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795808960,
+      "id": 11400869,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-build-checks",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11400869/bpi-m4-build-checks-1-1.2ebdad93e3de.fc45.src.rpm",
+        "version": "1-1.2ebdad93e3de.fc45"
+      },
+      "started_on": 1795808898,
+      "state": "succeeded",
+      "submitted_on": 1795808832,
+      "submitter": "vorona"
+    },
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795808982,
+      "id": 11400870,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-sd-boot",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11400870/bpi-m4-sd-boot-2-1.cb8db4b43a01.bpi_m4.fc45.src.rpm",
+        "version": "2-1.cb8db4b43a01.bpi_m4.fc45"
+      },
+      "started_on": 1795808918,
+      "state": "succeeded",
+      "submitted_on": 1795808837,
+      "submitter": "vorona"
+    },
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795809524,
+      "id": 11400871,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-kernel",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11400871/bpi-m4-kernel-7.3.5-7.ad26b33b92c4.bpi_m4.fc45.src.rpm",
+        "version": "7.3.5-7.ad26b33b92c4.bpi_m4.fc45"
+      },
+      "started_on": 1795808938,
+      "state": "succeeded",
+      "submitted_on": 1795808841,
+      "submitter": "vorona"
+    },
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795809556,
+      "id": 11400872,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-kernel-media",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11400872/bpi-m4-kernel-media-7.3.5-7.0e43a596c119.bpi_m4.fc45.src.rpm",
+        "version": "7.3.5-7.0e43a596c119.bpi_m4.fc45"
+      },
+      "started_on": 1795808938,
+      "state": "succeeded",
+      "submitted_on": 1795808845,
+      "submitter": "vorona"
+    },
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795809205,
+      "id": 11400876,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-native-codecs",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11400876/bpi-m4-native-codecs-9.0.2-4.9ad1a115f8a5.bpi_m4.fc45.src.rpm",
+        "version": "9.0.2-4.9ad1a115f8a5.bpi_m4.fc45"
+      },
+      "started_on": 1795808979,
+      "state": "succeeded",
+      "submitted_on": 1795808929,
+      "submitter": "vorona"
+    },
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795809039,
+      "id": 11400877,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-board-support",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11400877/bpi-m4-board-support-2-1.05d3894cdc32.bpi_m4.fc45.src.rpm",
+        "version": "2-1.05d3894cdc32.bpi_m4.fc45"
+      },
+      "started_on": 1795808979,
+      "state": "succeeded",
+      "submitted_on": 1795808930,
+      "submitter": "vorona"
+    },
+    {
+      "chroots": [
+        "fedora-45-aarch64"
+      ],
+      "ended_on": 1795809709,
+      "id": 11400987,
+      "is_background": false,
+      "ownername": "vorona",
+      "project_dirname": "bpi-m4",
+      "projectname": "bpi-m4",
+      "repo_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4",
+      "source_package": {
+        "name": "bpi-m4-module-checks",
+        "url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/srpm-builds/11400987/module-checks.src.rpm",
+        "version": "1-1.b4348fd32ed1.fc45"
+      },
+      "started_on": 1795809648,
+      "state": "succeeded",
+      "submitted_on": 1795809579,
+      "submitter": "vorona"
+    }
+  ],
+  "hardware_qualified": false,
+  "historical_fc_changed": false,
+  "image_lock_changed": false,
+  "implementation_commit": "38dd56a",
+  "regressions": {
+    "emmc_clock_guard": "passed",
+    "python_tests": 20
+  },
+  "server_devel": {
+    "key_sha256": "6cd682ef4c2a00dbcc5ed86a400194cf45b8c6de8ced7e66ce32be7f5704f86d",
+    "key_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/pubkey.gpg",
+    "release": "7.3.5-bpi_m4_fc_p10.r7.ad26b33b92c4",
+    "rpm_sha256": "9e6066f6fa1e051176fe073fd8fce36910d3637e5802a03ecc2a1a54e9ed9190",
+    "rpm_url": "https://download.copr.fedorainfracloud.org/results/vorona/bpi-m4/fedora-45-aarch64/11400871-bpi-m4-kernel/bpi-m4-kernel-devel-7.3.5-7.ad26b33b92c4.bpi_m4.fc45.aarch64.rpm"
+  },
+  "workflow": "COPR Git SCM / main / make_srpm / fedora-45-aarch64"
+}

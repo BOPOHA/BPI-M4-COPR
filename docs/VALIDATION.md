@@ -92,3 +92,26 @@ KERNEL-PULL-VALIDATION-2026-11-27.json records the successful public API states,
 devel signature verification and artifact pins. No kernel was compiled on the
 laptop, installed on the host or flashed to hardware. The IMAGE lock and
 historical fc checkout are unchanged; hardware boot remains unqualified.
+
+COPR-only cleanup, 2026-11-27
+
+Commit 38dd56a removes local SRPM/Mock build targets, the local binary builder,
+product-cache and audit dispatch, and the unversioned kernel build mode. Internal
+COPR source preparation remains necessary. The unused configured-image initramfs
+branch and codec image-lock argument are removed; codec SPEC ABI checks and boot
+fallback/reinstall guards remain. Historical local build support described above
+is retired. GHA triggering is maintained separately by the operator.
+
+All six affected packages passed native ARM64 Git pull builds: regressions
+11400869, SD boot 11400870, Server kernel/devel 11400871, Media kernel/devel
+11400872, codecs 11400876 and board support 11400877. The regression build passed
+20 Python tests and the compiled eMMC clock guard. Both kernel profiles passed
+their SPEC checks and native external-module smoke tests.
+
+The signed Server r7 devel RPM was verified against the pinned COPR key and its
+checksum and ABI now populate inputs.module-check.lock.json. Native module-check
+build 11400987 passed the exact make -C TREE M=MODULE modules command with the
+internal MMC header and matching vermagic, without ARCH/CROSS/LOCALVERSION
+overrides. COPR-ONLY-VALIDATION-2026-11-27.json records the public API states and
+pins. No laptop kernel compilation, host package installation or hardware writes
+were performed. Historical fc and the IMAGE lock are unchanged.
