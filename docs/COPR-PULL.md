@@ -22,7 +22,7 @@ the generated SRPM contains the same shared SPEC plus a Media profile source.
 Server uses packaging/bpi-m4-kernel.spec. Both produce versioned update packages.
 
 The network-enabled, isolated COPR source worker runs .copr/Makefile, installs
-its source-preparation dependencies internally, and invokes bpi_packaging.copr_source
+its source-preparation dependencies internally, and invokes scripts/copr-srpm.bash
 with COPR's spec/outdir arguments. Do not use that Makefile for host setup.
 Source preparation needs no Mock or compiler. Its identity fingerprints pinned
 inputs and preparation recipes without querying local Mock versions/config.
@@ -50,7 +50,7 @@ Local make srpms and Mock cross builds remain available when COPR is unavailable
 For a source-only test without installing host dependencies:
 
 ```sh
-python3 -m bpi_packaging.copr_source --spec packaging/bpi-m4-board-support.spec --outdir /tmp/bpi-srpms
+./scripts/copr-srpm.bash --spec packaging/bpi-m4-board-support.spec --outdir /tmp/bpi-srpms
 ```
 
 SCM and local Mock build identities use separate modes, so changing between them

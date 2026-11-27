@@ -24,3 +24,13 @@ has no C compiler; Mock supplied the declared compiler dependency. SD-boot and
 codec SRPM preparation succeeded with the renamed helpers. Native ARM64 package
 verification is recorded in VALIDATION.md. No host packages or devices were
 modified.
+
+SRPM orchestration cleanup
+
+The redundant bpi_packaging/copr_source.py bridge was replaced with
+scripts/copr-srpm.bash. Package routing is declared once in
+packaging/copr-scm.json. The Bash entry point selects the profile, checks the
+prepared SRPM's hash and package name, and copies it to COPR's output directory.
+Unused image-era DNF configuration functions and the unused --request argument
+were removed. The Python source preparer remains responsible for deterministic
+archives, structured receipts, pinned source verification and binary audits.

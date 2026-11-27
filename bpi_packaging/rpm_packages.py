@@ -46,7 +46,7 @@ def identity(inputs, files):
 def recipe_files(*paths):
     files = [Path(__file__), ROOT/'bpi_packaging/common.py', ROOT/'bpi_packaging/inputs.py', ROOT/'scripts/clean-rpm-work.bash', ROOT/'scripts/build-rpm.bash', ROOT/'scripts/build-srpm.bash', RPKG_CONFIG]
     if os.environ.get('BPI_COPR_SOURCE') == '1':
-        files.extend([ROOT/'.copr/Makefile', ROOT/'bpi_packaging/copr_source.py',
+        files.extend([ROOT/'.copr/Makefile', ROOT/'scripts/copr-srpm.bash', ROOT/'packaging/copr-scm.json',
                       ROOT/'packaging/keys/RPM-GPG-KEY-fedora-45-primary'])
     for name in paths:
         path = ROOT/name
@@ -437,7 +437,6 @@ def prepare_checks():
 def main():
     p = argparse.ArgumentParser(description='Prepare sources and build local RPMs through checked-in spec files')
     p.add_argument('component', nargs='?', choices=['board', 'kernel', 'kernel-updates', 'sd-boot', 'codecs', 'firmware', 'checks'])
-    p.add_argument('--request', type=Path)
     action = p.add_mutually_exclusive_group()
     action.add_argument('--srpm', action='store_true', help='Prepare only the source RPM')
     action.add_argument('--rebuild', action='store_true', help='Rebuild the existing source RPM')

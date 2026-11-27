@@ -4,12 +4,54 @@
   "committish": "main",
   "method": "make_srpm",
   "packages": [
-    {"name": "bpi-m4-board-support", "spec": "packaging/bpi-m4-board-support.spec"},
-    {"name": "bpi-m4-kernel", "spec": "packaging/bpi-m4-kernel.spec"},
-    {"name": "bpi-m4-kernel-media", "spec": "packaging/bpi-m4-kernel-media.spec"},
-    {"name": "bpi-m4-sd-boot", "spec": "packaging/bpi-m4-sd-boot.spec"},
-    {"name": "bpi-m4-native-codecs", "spec": "packaging/bpi-m4-native-codecs.spec"},
-    {"name": "bpi-m4-module-checks", "spec": "packaging/bpi-m4-module-checks.spec"},
-    {"name": "bpi-m4-build-checks", "spec": "packaging/bpi-m4-build-checks.spec"}
+    {
+      "name": "bpi-m4-board-support",
+      "spec": "packaging/bpi-m4-board-support.spec",
+      "component": "board",
+      "profile": "server",
+      "alias": "board"
+    },
+    {
+      "name": "bpi-m4-kernel",
+      "spec": "packaging/bpi-m4-kernel.spec",
+      "component": "kernel-updates",
+      "profile": "server",
+      "alias": "kernel-updates"
+    },
+    {
+      "name": "bpi-m4-kernel-media",
+      "spec": "packaging/bpi-m4-kernel-media.spec",
+      "component": "kernel-updates",
+      "profile": "media",
+      "alias": "kernel-media-updates"
+    },
+    {
+      "name": "bpi-m4-sd-boot",
+      "spec": "packaging/bpi-m4-sd-boot.spec",
+      "component": "sd-boot",
+      "profile": "server",
+      "alias": "sd-boot"
+    },
+    {
+      "name": "bpi-m4-native-codecs",
+      "spec": "packaging/bpi-m4-native-codecs.spec",
+      "component": "codecs",
+      "profile": "server",
+      "alias": "codecs"
+    },
+    {
+      "name": "bpi-m4-module-checks",
+      "spec": "packaging/bpi-m4-module-checks.spec",
+      "component": "module-checks",
+      "profile": "server",
+      "alias": "module-checks"
+    },
+    {
+      "name": "bpi-m4-build-checks",
+      "spec": "packaging/bpi-m4-build-checks.spec",
+      "component": "checks",
+      "profile": "server",
+      "alias": "checks"
+    }
   ]
 }

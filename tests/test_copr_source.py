@@ -1,12 +1,20 @@
 """Verify Git source selection and source-only build identities."""
 import os
+import json
+import subprocess
 import tempfile
 from pathlib import Path
 from unittest import TestCase
 from unittest.mock import patch
 from bpi_packaging.common import ROOT, FEDORA_FPR, verify_key
-from bpi_packaging.copr_source import selection
 from bpi_packaging.rpm_packages import build_environment, recipe_files
+
+
+def selection(spec):
+    result = subprocess.run([ROOT/'scripts/copr-srpm.bash', '--spec', str(spec), '--describe'],
+                            cwd=ROOT, check=True, capture_output=True, text=True)
+    entry = json.loads(result.stdout)
+    return entry['component'], entry['profile'], entry['alias']
 
 
 class CoprSourceTests(TestCase):
@@ -27,7 +35,7 @@ class CoprSourceTests(TestCase):
         for spec in ['packaging/bpi-m4-media-firmware.spec',
                      'packaging/missing.spec', '/tmp/bpi-m4-kernel.spec',
                      'packaging/../README.md']:
-            with self.subTest(spec=spec), self.assertRaises(ValueError):
+            with self.subTest(spec=spec), self.assertRaises(subprocess.CalledProcessError):
                 selection(spec)
 
     def test_source_identity_needs_no_mock_or_host_rpm_queries(self):
@@ -36,7 +44,7 @@ class CoprSourceTests(TestCase):
             self.assertEqual(build_environment(), {'mode': 'copr-scm', 'format': 1})
             files = recipe_files('packaging/bpi-m4-kernel.spec')
             self.assertIn(ROOT/'.copr/Makefile', files)
-            self.assertIn(ROOT/'bpi_packaging/copr_source.py', files)
+            self.assertIn(ROOT/'scripts/copr-srpm.bash', files)
             self.assertIn(ROOT/'packaging/keys/RPM-GPG-KEY-fedora-45-primary', files)
 
     def test_key_verification_ignores_missing_user_gnupg_home(self):

@@ -83,24 +83,3 @@ def verify_rpm(path, key):
     if 'signatures OK' not in output or 'NOT OK' in output or 'NOKEY' in output:
         raise ValueError(f'Unsigned/untrusted RPM: {path}')
     return path.name + ': digests signatures OK'
-
-def dnf_config(release=45):
-    directory = ROOT / 'cache/dnf'
-    (directory / 'repos').mkdir(parents=True, exist_ok=True)
-    key = ROOT / 'cache/keys/fedora-45.asc'
-    base = 'https://dl.fedoraproject.org/pub/fedora/linux'
-    repos = [('fedora', f'{base}/releases/{release}/Everything/aarch64/os/', 1),
-             ('updates', f'{base}/updates/{release}/Everything/aarch64/', 1),
-             ('fedora-source', f'{base}/releases/{release}/Everything/source/tree/', 0),
-             ('updates-source', f'{base}/updates/{release}/Everything/source/tree/', 0),
-             ('fedora-cisco-openh264', f'https://codecs.fedoraproject.org/openh264/{release}/aarch64/', 0)]
-    text = ''
-    for name, url, enabled in repos:
-        text += f'[{name}]\nname={name} official Fedora\nbaseurl={url}\nenabled={enabled}\ngpgcheck=1\ngpgkey=file://{key}\nskip_if_unavailable=0\n\n'
-    (directory / 'repos/fedora.repo').write_text(text)
-    conf = directory / 'dnf.conf'
-    conf.write_text(f'[main]\nreposdir={directory}/repos\ncachedir={directory}/cache\nlogdir={directory}/log\npersistdir={directory}/persist\ninstall_weak_deps=False\ngpgcheck=True\n')
-    return conf
-
-def dnf(release=45):
-    return ['dnf', '--config=' + str(dnf_config(release)), '--releasever=' + str(release), '--forcearch=aarch64']
