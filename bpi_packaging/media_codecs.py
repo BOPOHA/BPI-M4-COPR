@@ -1,5 +1,5 @@
 import platform
-"""Pinned upstream native decoders in a private, locally built RPM.
+"""Pinned upstream native decoders in a private COPR-built RPM.
 
 Only libavcodec is overridden for bpi-m4-play. Fedora's libavutil and other
 libraries remain in use; their ABI is checked before packaging.
@@ -14,7 +14,7 @@ FFMPEG_FPR = 'FCF986EA15E6E293A5644F10B4322F04D67658D8'
 LOCK = ROOT/'inputs.media-codecs.lock.json'
 
 
-def validate_lock(lock, image_lock=None):
+def validate_lock(lock):
     if (lock['schema'], lock['version'], lock['abi']) != (1, '9.0.2', 63):
         raise ValueError('Native codec source/ABI needs an explicit recipe update')
     if lock['key']['fingerprint'] != FFMPEG_FPR:
@@ -28,11 +28,6 @@ def validate_lock(lock, image_lock=None):
             raise ValueError('Codec sysroot requires Fedora-signed aarch64 inputs')
         if Path(item['filename']).name != item['filename']:
             raise ValueError('Invalid sysroot input filename')
-    if image_lock:
-        installed = {p['nevra'] for p in image_lock['packages']}
-        for name, evr in lock['runtime_packages'].items():
-            if f'{name}-{evr}.aarch64' not in installed:
-                raise ValueError('Media runtime changed; explicitly refresh/review codec ABI inputs: '+name)
 
 
 def verify_source(archive, signature, key, home):
@@ -47,7 +42,7 @@ def verify_source(archive, signature, key, home):
 
 
 def prepare_sysroot(inputs):
-    """Extract verified target development RPMs inside the Mock %prep stage."""
+    """Extract verified target development RPMs inside the COPR %prep stage."""
     sysroot = inputs/'sysroot'
     sysroot.mkdir()
     packages = sorted((inputs/'sysroot-rpms').glob('*.rpm'))

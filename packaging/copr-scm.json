@@ -14,16 +14,16 @@
     {
       "name": "bpi-m4-kernel",
       "spec": "packaging/bpi-m4-kernel.spec",
-      "component": "kernel-updates",
+      "component": "kernel",
       "profile": "server",
-      "alias": "kernel-updates"
+      "alias": "kernel"
     },
     {
       "name": "bpi-m4-kernel-media",
       "spec": "packaging/bpi-m4-kernel-media.spec",
-      "component": "kernel-updates",
+      "component": "kernel",
       "profile": "media",
-      "alias": "kernel-media-updates"
+      "alias": "kernel-media"
     },
     {
       "name": "bpi-m4-sd-boot",

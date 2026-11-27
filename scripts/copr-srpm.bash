@@ -37,7 +37,7 @@ if [[ $component == module-checks ]]; then
     ./scripts/prepare-module-check.bash
     source=$(realpath out/srpms/module-checks.src.rpm)
 else
-    python3 -m bpi_packaging.rpm_packages "$component" --profile "$profile" --srpm
+    python3 -m bpi_packaging.rpm_packages "$component" --profile "$profile"
     record="out/srpms/$alias.json"
     jq -e '.srpms | length==1' "$record" >/dev/null || die 'Exactly one SRPM required.'
     source=$(jq -er '.srpms[0].path' "$record")

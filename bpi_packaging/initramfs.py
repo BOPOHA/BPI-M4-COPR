@@ -106,7 +106,7 @@ def newc(stage):
     data += b'\0' * (-len(data) % 512)
     return bytes(data)
 
-def build(root, output, config=None):
+def build(root, output):
     stage = output.parent/'initramfs-root'
     stage.mkdir(exist_ok=False)
     for directory in ('dev', 'proc', 'sys', 'run', 'sysroot', 'etc', 'usr/bin', 'usr/lib64'):
@@ -117,22 +117,18 @@ def build(root, output, config=None):
     (stage/'usr/lib').mkdir(exist_ok=True)
     binaries = ['/usr/bin/bash', '/usr/bin/mount', '/usr/bin/mkdir', '/usr/bin/sleep', '/usr/bin/cat',
                 '/usr/sbin/blkid', '/usr/sbin/switch_root']
-    if config is None: binaries.append('/usr/bin/uname')
+    binaries.append('/usr/bin/uname')
     dependencies = closure(root, binaries)
     for name in sorted(dependencies | set(binaries)):
         copy_target(root, stage, name)
-    shutil.copy2(ROOT/'src/initramfs'/('init-sd' if config is None else 'init'), stage/'init')
+    shutil.copy2(ROOT/'src/initramfs/init-sd', stage/'init')
     (stage/'init').chmod(0o755)
-    if config is not None:
-        (stage/'etc/bpi-layout').write_text(f"ROOT_START={config['root_start']}\nROOT_SECTORS={config['root_sectors']}\nROOT_UUID={config['root_uuid']}\n")
-    else:
-        shutil.copy2(ROOT/'src/initramfs/sd-root.bash', stage/'etc/bpi-sd-root.bash')
+    shutil.copy2(ROOT/'src/initramfs/sd-root.bash', stage/'etc/bpi-sd-root.bash')
     # Validate the actual composed runtime, including transitive loader inputs.
     for binary in binaries:
         run(runtime_command(stage, binary) + ['--version'], log=output.parent/('initrd-'+Path(binary).name+'.log'))
     run(runtime_command(stage, '/bin/bash') + ['-n', stage/'init'])
-    if config is None:
-        run(runtime_command(stage, '/bin/bash') + ['-n', stage/'etc/bpi-sd-root.bash'])
+    run(runtime_command(stage, '/bin/bash') + ['-n', stage/'etc/bpi-sd-root.bash'])
     output.write_bytes(gzip.compress(newc(stage), mtime=0))
     write_json(output.parent/'initramfs-manifest.json', {
         'recipe': 'source-controlled helper plus locked Fedora aarch64 executable/library closure',

@@ -1,3 +1,8 @@
+Current workflow: COPR Git pull is the only supported build interface.
+Local SRPM uploads and Mock targets below describe historical work and are
+retired. Use [BUILD-PATHS.md](BUILD-PATHS.md) for current build commands; image
+and SPI builds belong to the independent BPI-M4-IMAGE and BPI-M4-SPI repositories.
+
 # Approved three-repository split and implementation handoff
 
 The user approved the architecture below on 2026-11-27 and requested this

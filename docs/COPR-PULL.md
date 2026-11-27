@@ -46,15 +46,11 @@ build-package explicitly. Media firmware is excluded until redistribution rights
 are resolved. Module checks retain the exact kernel-devel RPM/key/ABI pins in
 inputs.module-check.lock.json; review that lock when selecting a new kernel.
 
-Local make srpms and Mock cross builds remain available when COPR is unavailable.
-For a source-only test without installing host dependencies:
+COPR Git pull is the only supported build interface. Local SRPM/Mock targets,
+product caches and the legacy unversioned kernel package mode have been removed.
+The internal source-worker helpers still assemble self-contained SRPMs; no SRPM
+upload step is required. GHA triggering is maintained separately by the operator.
 
-```sh
-./scripts/copr-srpm.bash --spec packaging/bpi-m4-board-support.spec --outdir /tmp/bpi-srpms
-```
-
-SCM and local Mock build identities use separate modes, so changing between them
-invalidates cached receipts and can change recipe-versioned package/kernel ABIs.
 A successful kernel release still requires reviewing the IMAGE input lock before
 it is selected for an image. No Git pull build flashes or qualifies hardware.
 

@@ -1,3 +1,11 @@
+Current workflow: COPR Git pull only. Local Mock rebuilding, product receipt
+caching, binary audit dispatch and legacy kernel source selection have been
+removed. Python remains for verified source assembly, initramfs ELF dependency
+closure, codec ABI checks and regression tests. The old configured-image
+initramfs branch and image-lock codec argument are also removed.
+
+The following records the earlier migration and its validation:
+
 Python tooling review, 2026-11-27
 
 The helper package is now bpi_packaging instead of the historical bpi_image.

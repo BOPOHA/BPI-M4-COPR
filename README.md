@@ -1,14 +1,13 @@
 # BPI-M4-COPR
 
-OS RPM sources and self-contained SRPM preparation; local Mock builds and native aarch64 COPR releases.
+OS RPM sources for native ARM64 COPR Git pull builds and repository hosting.
+No sibling checkout or submodule is required.
 
-Host: Fedora 45; operator installs dependencies `mock mock-core-configs rpkg rpm-build python3 gnupg2 git jq` manually. Mock runs
-only through `/usr/bin/mock` as the regular user. No sudo/authentication is
-started by build scripts. No sibling checkout or submodule is required.
-
-Run `make help` for build/test targets. `make clean` removes this project's
-products; `make clean-hard` deletes all ignored content, including cache/work/out.
-Preserve useful artifacts outside the checkout first.
+Use `make configure` to reconcile COPR sources, `make build PACKAGE=bpi-m4-kernel`
+to request a native build, and `make checks` to run the regression package on
+COPR. These commands require an authenticated COPR CLI and jq. `make test` runs
+local regressions when their compiler and RPM tooling are already installed.
+No script starts sudo or authentication prompts.
 
 See [boot contract](docs/BOOT-CONTRACT.md), [extraction](docs/EXTRACTION.md),
 [approved plan](docs/REPOSITORY-SPLIT.md) and [provenance](docs/PROVENANCE.md).
@@ -20,7 +19,7 @@ Licensing: extracted code retains GPL/LGPL and imported notices. Selected new
 standalone files use [As-Is Noncommercial terms](licenses/As-Is-Noncommercial.txt).
 See [license scope](LICENSE.md).
 
-Both [native ARM64 and laptop cross builds](docs/BUILD-PATHS.md) are supported.
+[COPR build workflow and SPEC toggles](docs/BUILD-PATHS.md).
 
 See [Python tooling review](docs/PYTHON-TOOLING.md) for retained build/test roles
 and removed dependencies.

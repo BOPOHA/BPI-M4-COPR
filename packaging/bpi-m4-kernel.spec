@@ -3,14 +3,9 @@ Source98: bpi-build-profile
 %bcond media %["%(cat %{SOURCE98})" == "media"]
 %if %{with media}
 %global bpi_profile media
-%global bpi_other_profile server
 %else
 %global bpi_profile server
-%global bpi_other_profile media
 %endif
-# The SPI update variant is retained in its SRPM; legacy SD defaults stay separate.
-Source96: bpi-boot-mode
-%bcond boot_updates %["%(cat %{SOURCE96})" == "spi"]
 %bcond cross %["%{_host_cpu}" != "aarch64"]
 Source95: kernel-update-release
 %global bpi_update_release %(cat %{SOURCE95})
@@ -19,24 +14,14 @@ Source95: kernel-update-release
 %global __os_install_post %{nil}
 %global _build_id_links none
 %global _buildshell /bin/bash
-%if %{with boot_updates}
 %if %{with media}
 Name: bpi-m4-kernel-media
 %else
 Name: bpi-m4-kernel
 %endif
-%else
-Name: bpi-m4-kernel-%{bpi_profile}
-%endif
 Version: 7.3.5
-%if %{with media}
-%global bpi_kernel_release %{version}-bpi-m4-fc-p14-media
-%else
-%global bpi_kernel_release %{version}-bpi-m4-fc-p10
-%endif
 Source99: bpi-build-id
 %global bpi_recipe %(cat %{SOURCE99})
-%if %{with boot_updates}
 %if %{with media}
 %global bpi_kernel_base bpi_m4_fc_p14_media
 %else
@@ -48,13 +33,6 @@ Release: %{bpi_update_release}.%{bpi_recipe}.bpi_m4.fc45
 %global bpi_doc_dir /usr/share/doc/%{name}/%{bpi_kernel_release}
 %global bpi_license_dir /usr/share/licenses/%{name}/%{bpi_kernel_release}
 %global bpi_localversion LOCALVERSION=.r%{bpi_update_release}.%{bpi_recipe}
-%else
-Release: 1.%{bpi_recipe}.bpi_m4.fc45
-%global bpi_artifact_dir /usr/lib/bpi-m4/kernel-%{bpi_profile}
-%global bpi_doc_dir /usr/share/doc/%{name}
-%global bpi_license_dir /usr/share/licenses/%{name}
-%global bpi_localversion %{nil}
-%endif
 %if %{with cross}
 %global bpi_cross CROSS_COMPILE=aarch64-linux-gnu-
 %else
@@ -101,7 +79,6 @@ BuildRequires: dtc
 AutoReqProv: no
 Requires: kmod
 Provides: bpi-m4-kernel-uname-r(%{bpi_kernel_release})
-%if %{with boot_updates}
 Provides: kernel-uname-r = %{bpi_kernel_release}
 Provides: installonlypkg(kernel)
 Provides: bpi-m4-kernel-mode(%{bpi_profile})
@@ -109,18 +86,14 @@ Requires: bpi-m4-sd-boot >= 2
 Requires(posttrans): bpi-m4-sd-boot
 Requires(preun): bpi-m4-sd-boot
 Requires(post): coreutils
-%else
-Conflicts: bpi-m4-kernel-%{bpi_other_profile}
-%endif
 
 %description
 Linux and its exact matching modules, with source-prepared RTD1395 board ports.
-Boot artifacts are staged under /usr/lib/bpi-m4. The SPI update variant installs
-an immutable versioned boot bundle and selects it through extlinux after the
-transaction. Legacy SD variants stage payloads without activation. No variant
-writes SPI, the FAT boot partition or eMMC, or reboots the device.
+Boot artifacts form an immutable versioned bundle under /usr/lib/bpi-m4.
+The transaction selects it through extlinux. Installation never writes SPI,
+the FAT boot partition or eMMC, or reboots the device.
 
-%if %{with boot_updates} && %{without cross}
+%if %{without cross}
 %package devel
 Summary: Prepared external-module build tree for %{bpi_kernel_release}
 AutoReqProv: no
@@ -168,9 +141,7 @@ cat "$inputs/src/linux/board-server.dtsi" >>"$board"
 %build
 unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
 test '%{_target_cpu}' = aarch64
-%if %{with boot_updates}
 scripts/config --set-str LOCALVERSION '-%{bpi_kernel_base}'
-%endif
 make %{bpi_make_args} olddefconfig
 while IFS= read -r option; do
   grep -Fxq -- "$option" .config || { echo "Unresolved required kernel option: $option" >&2; exit 1; }
@@ -192,9 +163,7 @@ install -pm644 arch/arm64/boot/Image "$dest/Image"
 install -pm644 arch/arm64/boot/dts/realtek/bpi-m4-fc.dtb "$dest/board.dtb"
 install -pm644 .config "$dest/kernel.config"
 install -pm644 Module.symvers "$dest/Module.symvers"
-%if %{with boot_updates}
 printf '%%s\n' '%{bpi_profile}' >"$dest/boot-profile"
-%endif
 config_sha=$(sha256sum "$dest/kernel.config" | cut -d ' ' -f 1)
 symvers_sha=$(sha256sum "$dest/Module.symvers" | cut -d ' ' -f 1)
 find "$modules" -type f -name '*.ko' -exec sha256sum --zero {} + | \
@@ -204,13 +173,11 @@ jq -nS --arg release "%{bpi_kernel_release}" --arg version "%{version}" \
   --arg config "$config_sha" --arg symvers "$symvers_sha" --slurpfile modules module-hashes.json \
   '{release:$release, source_version:$version, config_sha256:$config, module_symvers_sha256:$symvers, modules_sha256:$modules[0], hardware_validated:false}' > "$dest/kernel-manifest.json"
 (cd "$dest"; sha256sum Image board.dtb kernel.config Module.symvers kernel-manifest.json >SHA256SUMS)
-%if %{with boot_updates}
 (cd "$dest"; sha256sum boot-profile >>SHA256SUMS)
-%endif
 install -Dpm644 COPYING "%{buildroot}%{bpi_license_dir}/COPYING"
 install -Dpm644 bpi-m4-kernel-inputs/provenance.json "%{buildroot}%{bpi_doc_dir}/provenance.json"
 
-%if %{with boot_updates} && %{without cross}
+%if %{without cross}
 devel="%{buildroot}/usr/src/kernels/%{bpi_kernel_release}"
 mkdir -p "$devel"
 # Preserve all Kbuild/Makefiles and headers, including internal board-driver headers.
@@ -251,7 +218,7 @@ for node in audio@2600000 media@3200000 acpu@f900000; do
 done
 test "$(fdtget -t s arch/arm64/boot/dts/realtek/bpi-m4-fc.dtb /chosen bananapi,boot-profile)" = '%{bpi_profile}'
 
-%if %{with boot_updates} && %{without cross}
+%if %{without cross}
 smoke=$(mktemp -d)
 printf 'obj-m := smoke.o\n' >"$smoke/Makefile"
 printf '#include <linux/module.h>\nstatic int __init smoke_init(void) { return 0; }\nstatic void __exit smoke_exit(void) {}\nmodule_init(smoke_init); module_exit(smoke_exit);\nMODULE_LICENSE("GPL");\n' >"$smoke/smoke.c"
@@ -263,20 +230,19 @@ rm -rf "$smoke"
 
 %files
 /usr/lib/modules/%{bpi_kernel_release}
-%if %{with boot_updates} && %{without cross}
+%if %{without cross}
 %exclude /usr/lib/modules/%{bpi_kernel_release}/build
 %endif
 %{bpi_artifact_dir}
 %doc %{bpi_doc_dir}
 %license %{bpi_license_dir}
 
-%if %{with boot_updates} && %{without cross}
+%if %{without cross}
 %files devel
 /usr/src/kernels/%{bpi_kernel_release}
 /usr/lib/modules/%{bpi_kernel_release}/build
 %endif
 
-%if %{with boot_updates}
 %post -p /bin/bash
 # Keep an incoming ABI during reinstall; /run markers are transaction-local.
 mkdir -p /run/bpi-m4-kernel-updates
@@ -296,4 +262,3 @@ if [[ $1 -gt 0 && -f $marker && $(cat "$marker") == "$PPID" ]]; then
     exit 0
 fi
 /usr/sbin/bpi-m4-bootctl remove '%{bpi_kernel_release}'
-%endif

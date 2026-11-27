@@ -20,7 +20,7 @@ BuildRequires: gzip
 BuildRequires: util-linux-core
 
 %description
-Runs the Python regression suite and compiled controller harnesses inside Mock.
+Runs the Python regression suite and compiled controller harnesses inside the COPR buildroot.
 This package records successful checks and is not installed into SD images.
 
 %prep
@@ -35,7 +35,7 @@ mkdir -p "%{buildroot}/usr/share/doc/%{name}"
 %check
 bash tests/check-emmc-clock.bash
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
-printf 'Regression suite passed in Mock.\n' > "%{buildroot}/usr/share/doc/%{name}/checks.txt"
+printf 'Regression suite passed in the COPR buildroot.\n' > "%{buildroot}/usr/share/doc/%{name}/checks.txt"
 
 %files
 %license /usr/share/licenses/%{name}
