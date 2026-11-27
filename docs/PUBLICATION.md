@@ -6,6 +6,8 @@ Server submissions (fedora-45-aarch64):
 - 11396974: board-support (includes optional Media support/metapackage)
 - 11396975: generic sd-boot (native build succeeded)
 - 11396976: Server kernel release 5 and matching native kernel-devel
+- 11396990: optional Media kernel and matching native kernel-devel
+- 11396991: optional native codecs (no vendor firmware submitted)
 
 Local x86_64 Mock runs validate source extraction with cross tools. COPR is the
 native aarch64 builder and package repository. The redundant laptop kernel
