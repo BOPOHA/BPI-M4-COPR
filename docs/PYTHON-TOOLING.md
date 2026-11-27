@@ -34,3 +34,7 @@ prepared SRPM's hash and package name, and copies it to COPR's output directory.
 Unused image-era DNF configuration functions and the unused --request argument
 were removed. The Python source preparer remains responsible for deterministic
 archives, structured receipts, pinned source verification and binary audits.
+
+The kernel update revision advances to 6 for the Bash source-entry verification
+build, so the new recipe sorts after revision 5 regardless of its hash suffix.
+Previously published kernel generations remain available as fallbacks.
